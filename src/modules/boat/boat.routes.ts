@@ -6,6 +6,5 @@ const boatRouter = Router({mergeParams: true});
 
 boatRouter.get("/",  boatController.get.bind(boatController));
 boatRouter.get("/:id",  boatController.retrieve.bind(boatController));
- 
 
 export default boatRouter;

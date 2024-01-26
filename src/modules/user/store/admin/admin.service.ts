@@ -22,6 +22,10 @@ export class AdminStoreService extends StoreService{
     async getAllStore(){
         return await this.repository.find();
     }
+
+    async getStoreCount(){
+        return await this.repository.count();
+    }
 }
 
 export const adminStoreService = new AdminStoreService();

@@ -1,6 +1,8 @@
 import { DeepPartial } from "typeorm";
 import CustomerEntity from "./entities/customer.entity";
 import { CustomerRepository, customerRepository } from "./repository/customer.repository";
+import { plainToInstance } from "class-transformer";
+import { CustomerSerializer } from "./customer.serializer";
   
 
 export class CustomerService {
@@ -18,19 +20,27 @@ export class CustomerService {
   }
 
   async createOne(data: DeepPartial<CustomerEntity>) {
-    const store = this.repository.create({
+    const customer = this.repository.create({
       name: data.name,
       email: data.email,
       phoneNumber: data.phoneNumber,
     });
     if (data?.password) {
-      await store.setPassword(data?.password);
+      await customer.setPassword(data?.password);
     }
-    return await store.save();
+    return await customer.save();
   }
 
   async deleteUser(userId: number) {
     return await this.repository.softDelete({ id: userId });
+  }
+
+  transformMany(customer?: CustomerEntity[]) {
+    return customer?.map((customer) => plainToInstance(CustomerSerializer, customer, {}));
+  }
+
+  transformOne(customer?: CustomerEntity) {
+    return plainToInstance(CustomerSerializer, customer, {});
   }
 }
 
