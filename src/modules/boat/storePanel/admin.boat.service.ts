@@ -16,7 +16,7 @@ export class AdminBoatSevice extends BoatService{
         return await this.repository.delete({id: id})
     }
 
-    async patch(id: number, Boat: DeepPartial<BoatEntity> ){
+    async patch(id: number, Boat: Partial<BoatEntity> ){
         await this.repository.update(id, Boat);
         return await this.repository.findBy({id})
     }

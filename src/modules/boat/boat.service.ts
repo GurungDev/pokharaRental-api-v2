@@ -15,6 +15,10 @@ export default class BoatService{
         return await this.repository.findBy({ store: {id: storeId} });
     }
 
+    async getBoatsCountAccordingToStoreId(storeId: number){
+        return await this.repository.countBy({ store: {id: storeId} });
+    }
+
     async getBoatAccordingToId(id:number){
         return await this.repository.findOneBy({ id: id });
     }    

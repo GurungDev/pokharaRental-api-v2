@@ -16,7 +16,7 @@ export class AdminCycleSevice extends CycleService{
         return await this.repository.delete({id: id})
     }
 
-    async patch(id: number, cycle: DeepPartial<CycleEntity> ){
+    async patch(id: number, cycle: Partial<CycleEntity> ){
         await this.repository.update(id, cycle);
         return await this.repository.findBy({id})
     }

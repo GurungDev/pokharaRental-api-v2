@@ -9,6 +9,7 @@ import jwt from "jsonwebtoken";
 import { StoreService, storeService } from "../user/store/store.service";
 import { CustomerRegisterDto, StoreRegisterDto } from "./auth.dto";
 import { EnvConfig } from "../../config/envConfig";
+import { Point } from "typeorm";
 
 export class AuthService {
   private storeService: StoreService;
@@ -19,7 +20,6 @@ export class AuthService {
     this.storeService = storeService;
     this.customerService = customerService;
     this.adminService = adminService;
-
   }
 
 
@@ -32,21 +32,25 @@ export class AuthService {
   }
   
   async registerStore(storeRegisterDto: StoreRegisterDto) {
-    const { name, password, location, email, ownerName, phoneNumber } =
+    const { name, password,long, lat, email, ownerName, phoneNumber } =
       storeRegisterDto;
 
     //otp verification here
-
+    const pointObject :Point= {
+      type: "Point",
+      coordinates: [parseFloat(long) , parseFloat(lat)]
+  };
+   
     const store = await this.storeService.createOne({
       name,
       password,
-      location,
+      location: pointObject,
       email,
       ownerName,
       phoneNumber,
     });
     return store;
-  }
+  } 
 
   async registerUser(customerRegisterDto: CustomerRegisterDto) {
     const { name, password, email, phoneNumber } = customerRegisterDto;

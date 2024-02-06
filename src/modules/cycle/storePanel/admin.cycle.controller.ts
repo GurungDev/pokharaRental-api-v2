@@ -15,11 +15,15 @@ export default class AdminCyclecontroller{
     }
 
     private async checkStoreIdentity(req: Request){
-        const storeId = req.userId;
+        try {
+            const storeId = req.userId;
         if(req.role != UserEnum.STORE){
             throw new ExpressError(400, "Only stores can add cycles")
         }
         return storeId
+        } catch (error) {
+            return 0
+        }
     }
 
     async post(req: Request, res: Response, next: NextFunction){
@@ -54,6 +58,19 @@ export default class AdminCyclecontroller{
         }
     }
 
+    async getCount(req: Request, res: Response, next: NextFunction){
+        try {
+            const storeId = await this.checkStoreIdentity(req);
+            const cycles = await this.service.getCyclesCountAccordingToStoreId(storeId);
+            return ResponseHandler.success(res, 
+                "Successfully retrieved",
+                cycles
+            )
+        } catch (error) {
+            next(error)
+        }
+    }
+
     async retrieve(req: Request, res: Response, next: NextFunction){
         try {
             const {id} = plainToInstance(ValidateId, req.params);
@@ -70,8 +87,31 @@ export default class AdminCyclecontroller{
         }
     }
 
+    async patch(req: Request, res: Response, next: NextFunction){
+        try {
+            const {id} = plainToInstance(ValidateId, req.params);
+            const payload = plainToInstance(
+                CreateCycleDto,
+                req.body
+            );
+            await this.checkStoreIdentity(req);
+            const cycle = await this.service.getCycleAccordingToId(id);
+            if(!cycle){
+                throw new ExpressError(404, "cycle not found")
+            }
+            await this.service.patch(id, payload)
+            return ResponseHandler.success(res, 
+                "Successfully updated",
+                cycle
+            )
+        } catch (error) {
+            next(error)
+        }
+    }
+
     async delete(req: Request, res: Response, next: NextFunction){
         try {
+            
             const {id} = plainToInstance(ValidateId, req.params);
             if(!await this.service.getCycleAccordingToId(id)){
                 throw new ExpressError(404, "Cycle not found.")

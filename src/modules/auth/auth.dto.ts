@@ -14,7 +14,11 @@ export class StoreRegisterDto {
 
     @IsNotEmpty()
     @IsString()
-    location: string; 
+    long: string;
+    
+    @IsNotEmpty()
+    @IsString()
+    lat: string;
     
     @IsNotEmpty()
     @IsString()

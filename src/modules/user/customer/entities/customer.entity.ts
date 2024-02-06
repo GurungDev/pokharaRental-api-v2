@@ -1,7 +1,8 @@
 import { Column, Entity, OneToMany } from "typeorm";
 import { CustomBaseEntity } from "../../../../common/baseEntity/custom-base-entity";
-import BoatEntity from "../../../boat/entities/boat.entity";
+ 
 import { generateHash } from "../../../../common/function/hashing";
+import { SubscriberEntity } from "../../../subscriber/entities/subscriber.entity";
  
 @Entity({name: 'Customers'})
 export default class CustomerEntity extends CustomBaseEntity {
@@ -22,8 +23,8 @@ export default class CustomerEntity extends CustomBaseEntity {
     @Column({ unique: true })
     phoneNumber: string;
 
-    // @OneToMany(() => BoatEntity, (boat) => boat.store)
-    // boats: BoatEntity[]
+    @OneToMany(() => SubscriberEntity, (subscriber) => subscriber.user)
+    subscribers: SubscriberEntity[]
 
     async verifyPassword(password: string): Promise<boolean>{
         const {hashedValue: hashedPassword} = await generateHash(password, this.salt);

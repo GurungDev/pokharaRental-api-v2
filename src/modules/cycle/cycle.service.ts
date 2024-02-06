@@ -15,7 +15,9 @@ export default class CycleService{
     async getCyclesAccordingToStoreId(storeId: number){
         return await this.repository.findBy({ store: {id: storeId} });
     }
-
+    async getCyclesCountAccordingToStoreId(storeId: number){
+        return await this.repository.countBy({ store: {id: storeId} });
+    }
     async getCycleAccordingToId(id:number){
         return await this.repository.findOneBy({ id: id });
     }    

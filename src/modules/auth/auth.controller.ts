@@ -15,7 +15,6 @@ export default class AuthController{
         try {
             const {email, password, validateFor} = req.body;
             const {id, name }:  any = await this.service.validate(email,password, validateFor);
-
             const token = await this.service.createToken(id,validateFor);
             return ResponseHandler.success(res, "Login Success", {
                 id,
