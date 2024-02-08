@@ -35,7 +35,7 @@ export default class StoreEntity extends CustomBaseEntity {
     })
     location: Point
 
-    @Column({default: false})
+    @Column({default: false})  
     is_approved: boolean;
 
     @OneToMany(() => BoatEntity, (boat) => boat.store)

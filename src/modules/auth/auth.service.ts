@@ -1,5 +1,5 @@
 import { ExpressError } from "../../common/class/error";
-import { UserEnum, UserServiceEnum } from "../../common/enum/enums";
+import { OtpPurpose, UserEnum, UserServiceEnum } from "../../common/enum/enums";
 import { AdminService, adminService } from "../admin/admin.service";
 import {
   CustomerService,
@@ -7,19 +7,24 @@ import {
 } from "../user/customer/customer.service";
 import jwt from "jsonwebtoken";
 import { StoreService, storeService } from "../user/store/store.service";
-import { CustomerRegisterDto, StoreRegisterDto } from "./auth.dto";
+import { CustomerRegisterDto, StoreDto, StoreRegisterDto } from "./auth.dto";
 import { EnvConfig } from "../../config/envConfig";
 import { Point } from "typeorm";
+import emailService, { EmailService } from "../email/emai.service";
+import { OTPService, otpService } from "../otp/otp.service";
 
 export class AuthService {
   private storeService: StoreService;
   private customerService: CustomerService;
   private adminService: AdminService;
- 
+  private readonly emailService: EmailService;
+  private readonly otpService: OTPService;
   constructor() {
     this.storeService = storeService;
     this.customerService = customerService;
     this.adminService = adminService;
+    this.emailService = emailService;
+    this.otpService = otpService;
   }
 
 
@@ -31,7 +36,67 @@ export class AuthService {
     return jwt.verify(token, EnvConfig.jwtSecret) as {id: number, role: string, extraData?: any};
   }
   
-  async registerStore(storeRegisterDto: StoreRegisterDto) {
+
+  async send(email: string, purpose:OtpPurpose) {
+ 
+     const otp = await this.otpService.buildOtp(email, purpose);
+      switch (purpose) {
+        case OtpPurpose.SIGNUP_CUSTOMER:
+          const user = await this.customerService.findByEmail(email);
+          if (user) {
+            throw new ExpressError(
+              400,
+              `User with email ${email} already exists. Please login.`
+            );
+          }
+
+          this.emailService.mailCustomerRegister(email, otp.otp)
+          break;
+
+        case OtpPurpose.FORGOT_PASSWORD_CUSTOMER:
+          const userForForgotPassword = await this.customerService.findByEmail(email);
+          if (!userForForgotPassword) {
+            throw new ExpressError(
+              400,
+              `User with email ${email} doesn't exists. Please signup.`
+            );
+          }
+          // otp = otpCache.setOtpInCache(email, purpose);
+          // await emailSender.forgotPassword(email, otp);
+          break;
+
+          case OtpPurpose.SIGNUP_STORE:
+            const store = await this.customerService.findByEmail(email);
+            if (store) {
+              throw new ExpressError(
+                400,
+                `store with email ${email} already exists. Please login.`
+              );
+            }        
+            this.emailService.mailStoreRegister(email, otp.otp)
+            break;
+  
+          case OtpPurpose.FORGOT_PASSWORD_STORE:
+            const storePasswordForgot = await this.customerService.findByEmail(email);
+            if (!storePasswordForgot) {
+              throw new ExpressError(
+                400,
+                `User with email ${email} doesn't exists. Please signup.`
+              );
+            }
+  
+            // otp = otpCache.setOtpInCache(email, purpose);
+            // await emailSender.forgotPassword(email, otp);
+            break;
+
+        default:
+          throw new ExpressError(400, "Invalid purpose");
+      }
+ 
+    
+  }
+
+  async registerStore(storeRegisterDto: StoreDto) {
     const { name, password,long, lat, email, ownerName, phoneNumber } =
       storeRegisterDto;
 

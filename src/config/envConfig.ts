@@ -36,16 +36,19 @@ export class EnvConfig {
     password: this.parseString(this.getFromEnv("ADMIN_PASSWORD")),
   };
 
-  // public static mailConfig = {
-  //   noReplySender: this.parseString(this.getFromEnv("NO_REPLY_SENDER")),
-  //   providerApiSecret: this.parseString(this.getFromEnv("PROVIDER_API_KEY")),
-  // };
+  public static otpSecret = this.parseString(this.getFromEnv("OTP_SECRET"))
+  public static otpExipryTime = this.parseInt(
+    this.getFromEnv("VERIFICATION_OTP_EXPIRY_SEC")
+  );
+
+
+  public static mailConfig = {
+    noReplySender: this.parseString(this.getFromEnv("NO_REPLY_SENDER")),
+    providerApiSecret: this.parseString(this.getFromEnv("PROVIDER_API_KEY")),
+  };
 
   // public static frontendUrl = this.parseString(this.getFromEnv("FRONTEND_URL"));
-  // public static vTokenValidityInSec = this.parseInt(
-  //   this.getFromEnv("VERIFICATION_TOKEN_EXPIRY_SEC")
-  // );
-
+ 
   // public static s3Config = {
   //   endpoint: this.parseString(this.getFromEnv("ENDPOINT")),
   //   region: this.parseString(this.getFromEnv("REGION")),
