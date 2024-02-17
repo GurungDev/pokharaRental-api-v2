@@ -4,6 +4,8 @@ import { ResponseHandler } from "../../common/class/success.response";
 import { plainToInstance } from "class-transformer";
 import { ValidateId } from "../../common/validation/id.validate";
 import { ExpressError } from "../../common/class/error";
+import { PaginationRequest } from "../../common/validation/paginationRequest.validation";
+import { GetBoatDto } from "./boat.dto";
 
 export default class BoatController{
     private readonly service: BoatService
@@ -13,7 +15,9 @@ export default class BoatController{
 
     async get(req: Request, res: Response, next: NextFunction){
         try {
-            const boats = await this.service.getAll();
+            const paginationRequest = plainToInstance(PaginationRequest, req.query);
+            const searchPayload = plainToInstance(GetBoatDto, req.query);
+            const boats = await this.service.getAll( searchPayload, paginationRequest);
             return ResponseHandler.success(res, 
                 "Successfully retrieved",
                 boats

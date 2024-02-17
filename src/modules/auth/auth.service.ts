@@ -27,85 +27,111 @@ export class AuthService {
     this.otpService = otpService;
   }
 
-
-  async createToken(id: number, role: UserEnum, extraData?: any){
-    return jwt.sign({id, role, extraData}, EnvConfig.jwtSecret, { expiresIn:EnvConfig.jwtExpiresInSec})
+  async createToken(id: number, role: UserEnum, extraData?: any) {
+    return jwt.sign({ id, role, extraData }, EnvConfig.jwtSecret, {
+      expiresIn: EnvConfig.jwtExpiresInSec,
+    });
   }
 
-  async verifyToken(token: string){
-    return jwt.verify(token, EnvConfig.jwtSecret) as {id: number, role: string, extraData?: any};
+  async verifyToken(token: string) {
+    return jwt.verify(token, EnvConfig.jwtSecret) as {
+      id: number;
+      role: string;
+      extraData?: any;
+    };
   }
-  
 
-  async send(email: string, purpose:OtpPurpose) {
- 
-     const otp = await this.otpService.buildOtp(email, purpose);
-      switch (purpose) {
-        case OtpPurpose.SIGNUP_CUSTOMER:
-          const user = await this.customerService.findByEmail(email);
-          if (user) {
-            throw new ExpressError(
-              400,
-              `User with email ${email} already exists. Please login.`
-            );
-          }
+  async send(email: string, purpose: OtpPurpose, phoneNumber: string) {
+    let otp;
+    console.log(phoneNumber);
+    switch (purpose) {
+      case OtpPurpose.SIGNUP_CUSTOMER:
+        const user = await this.customerService.findByEmail(email);
 
-          this.emailService.mailCustomerRegister(email, otp.otp)
-          break;
+        if (user) {
+          throw new ExpressError(
+            400,
+            `User with email ${email} already exists. Please login.`
+          );
+        }
 
-        case OtpPurpose.FORGOT_PASSWORD_CUSTOMER:
-          const userForForgotPassword = await this.customerService.findByEmail(email);
-          if (!userForForgotPassword) {
-            throw new ExpressError(
-              400,
-              `User with email ${email} doesn't exists. Please signup.`
-            );
-          }
-          // otp = otpCache.setOtpInCache(email, purpose);
-          // await emailSender.forgotPassword(email, otp);
-          break;
+        if (await this.customerService.findByNumber(phoneNumber)) {
+          throw new ExpressError(
+            400,
+            `User with phone Number ${phoneNumber} already exists. Please login.`
+          );
+        }
+        await this.otpService.revokeAllSimilarOtp(purpose, email);
+        otp = await this.otpService.buildOtp(email, purpose);
 
-          case OtpPurpose.SIGNUP_STORE:
-            const store = await this.customerService.findByEmail(email);
-            if (store) {
-              throw new ExpressError(
-                400,
-                `store with email ${email} already exists. Please login.`
-              );
-            }        
-            this.emailService.mailStoreRegister(email, otp.otp)
-            break;
-  
-          case OtpPurpose.FORGOT_PASSWORD_STORE:
-            const storePasswordForgot = await this.customerService.findByEmail(email);
-            if (!storePasswordForgot) {
-              throw new ExpressError(
-                400,
-                `User with email ${email} doesn't exists. Please signup.`
-              );
-            }
-  
-            // otp = otpCache.setOtpInCache(email, purpose);
-            // await emailSender.forgotPassword(email, otp);
-            break;
+        this.emailService.mailCustomerRegister(email, otp.otp);
+        break;
 
-        default:
-          throw new ExpressError(400, "Invalid purpose");
-      }
- 
-    
+      case OtpPurpose.FORGOT_PASSWORD_CUSTOMER:
+        const userForForgotPassword = await this.customerService.findByEmail(
+          email
+        );
+        if (!userForForgotPassword) {
+          throw new ExpressError(
+            400,
+            `User with email ${email} doesn't exists. Please signup.`
+          );
+        }
+        await this.otpService.revokeAllSimilarOtp(purpose, email);
+        otp = await this.otpService.buildOtp(email, purpose);
+        this.emailService.mailPasswordChange(email, otp.otp);
+        break;
+
+      case OtpPurpose.SIGNUP_STORE:
+        const store = await this.customerService.findByEmail(email);
+        if (store) {
+          throw new ExpressError(
+            400,
+            `store with email ${email} already exists. Please login.`
+          );
+        }
+        if (await this.storeService.findByNumber(phoneNumber)) {
+          throw new ExpressError(
+            400,
+            `store with phone Number ${phoneNumber} already exists. Please login.`
+          );
+        }
+        await this.otpService.revokeAllSimilarOtp(purpose, email);
+        otp = await this.otpService.buildOtp(email, purpose);
+
+        this.emailService.mailStoreRegister(email, otp.otp);
+        break;
+
+      case OtpPurpose.FORGOT_PASSWORD_STORE:
+        const storePasswordForgot = await this.customerService.findByEmail(
+          email
+        );
+        if (!storePasswordForgot) {
+          throw new ExpressError(
+            400,
+            `User with email ${email} doesn't exists. Please signup.`
+          );
+        }
+        await this.otpService.revokeAllSimilarOtp(purpose, email);
+        otp = await this.otpService.buildOtp(email, purpose);
+
+        this.emailService.mailPasswordChange(email, otp.otp);
+        break;
+
+      default:
+        throw new ExpressError(400, "Invalid purpose");
+    }
   }
 
   async registerStore(storeRegisterDto: StoreDto) {
-    const { name, password,long, lat, email, ownerName, phoneNumber } =
+    const { name, password, long, lat, email, ownerName, phoneNumber } =
       storeRegisterDto;
 
-    //otp verification here
-    const pointObject :Point= {
+    const pointObject: Point = {
       type: "Point",
-      coordinates: [parseFloat(long) , parseFloat(lat)]
-  };
-   
+      coordinates: [parseFloat(long), parseFloat(lat)],
+    };
+
     const store = await this.storeService.createOne({
       name,
       password,
@@ -115,13 +141,10 @@ export class AuthService {
       phoneNumber,
     });
     return store;
-  } 
+  }
 
   async registerUser(customerRegisterDto: CustomerRegisterDto) {
     const { name, password, email, phoneNumber } = customerRegisterDto;
-
-    //otp verification here
-
     const newUser = await this.customerService.createOne({
       name,
       password,
@@ -131,30 +154,46 @@ export class AuthService {
     return newUser;
   }
 
+  async changePassword(
+    password: string,
+    email: string,
+    otpPurpose: OtpPurpose
+  ) {
+    switch (otpPurpose) {
+      case OtpPurpose.FORGOT_PASSWORD_CUSTOMER:
+        const customer = await this.customerService.changePassword(
+          email,
+          password
+        );
+        return "Sucesssfully Changed Password";
+      case OtpPurpose.FORGOT_PASSWORD_CUSTOMER:
+        const store = await this.storeService.changePassword(email, password);
+        return "Sucesssfully Changed Password";
+      default:
+        return "Invalid Purpose";
+    }
+  }
+
   async validate(email: string, password: string, validateFor: UserEnum) {
     let validationResponse;
-    let id;
-    let role;
-    let extraData;
     if (validateFor == UserEnum.STORE) {
       validationResponse = await this.storeService.findByEmail(email);
       if (!validationResponse) {
         throw new ExpressError(404, "Store not found");
-      } 
-      if(!validationResponse.is_approved){
-        throw new ExpressError(400, "Your store is not approved.")
+      }
+      if (!validationResponse.is_approved) {
+        throw new ExpressError(400, "Your store is not approved.");
       }
     } else if (validateFor == UserEnum.CUSTOMER) {
       validationResponse = await this.customerService.findByEmail(email);
       if (!validationResponse) {
         throw new ExpressError(404, "User not found");
       }
-    }
-    else{
+    } else {
       validationResponse = await this.adminService.findByEmail(email);
       if (!validationResponse) {
         throw new ExpressError(404, "Admin not found");
-      }  
+      }
     }
     //checking password
     const checkPassword = await validationResponse.verifyPassword(password);
@@ -167,6 +206,5 @@ export class AuthService {
     return validationResponse;
   }
 }
-
 
 export const authService = new AuthService();

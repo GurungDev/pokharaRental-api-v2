@@ -21,6 +21,19 @@ export class StoreService {
     return await this.repository.findOne({ where: { email: email } });
   }
 
+  async changePassword(email: string, newPassword: string) {
+    const customer = await this.repository.findOne({where: {email} });
+    if (!customer) {
+      throw new Error('Customer not found');
+    }
+    
+    await customer.setPassword(newPassword);
+    return await customer.save();
+  }
+  async findByNumber(number: string) {
+    return await this.repository.findOne({ where: { phoneNumber: number } });
+  }
+
   async createOne(data: DeepPartial<StoreEntity>) {
     const store = this.repository.create({
       name: data.name,

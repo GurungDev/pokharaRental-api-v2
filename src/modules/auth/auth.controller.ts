@@ -1,7 +1,12 @@
 import { NextFunction, Request, Response } from "express";
 import { AuthService } from "./auth.service";
 import { plainToInstance } from "class-transformer";
-import { CustomerRegisterDto, OtpDto, StoreRegisterDto } from "./auth.dto";
+import {
+  ChangePasswordDto,
+  CustomerRegisterDto,
+  OtpDto,
+  StoreRegisterDto,
+} from "./auth.dto";
 import { ResponseHandler } from "../../common/class/success.response";
 import { OtpPurpose, UserEnum } from "../../common/enum/enums";
 import { OTPService, otpService } from "../otp/otp.service";
@@ -10,11 +15,10 @@ import emailService, { EmailService } from "../email/emai.service";
 export default class AuthController {
   private readonly service: AuthService;
   private readonly otpService: OTPService;
-  
+
   constructor() {
     this.service = new AuthService();
     this.otpService = otpService;
-
   }
 
   async login(req: Request, res: Response, next: NextFunction) {
@@ -38,9 +42,8 @@ export default class AuthController {
 
   async sendOtp(req: Request, res: Response, next: NextFunction) {
     try {
-      const { email, purpose } = plainToInstance(OtpDto, req.body);
-    await this.service.send(email, purpose)
-     
+      const { email, phoneNumber, purpose } = plainToInstance(OtpDto, req.body);
+      await this.service.send(email, purpose, phoneNumber);
       return ResponseHandler.success(res, "OTP sent");
     } catch (error) {
       next(error);
@@ -59,8 +62,9 @@ export default class AuthController {
         otp,
         registerDto.email
       );
-
+      await this.otpService.revokeAOtp(otp);
       const newStore = await this.service.registerStore(registerDto);
+
       return ResponseHandler.success(res, "Store registered", {
         store: {
           id: newStore.id,
@@ -82,7 +86,7 @@ export default class AuthController {
         registerDto.otp,
         registerDto.email
       );
-
+      await this.otpService.revokeAOtp(registerDto.otp);
       const newUser = await this.service.registerUser(registerDto);
       return ResponseHandler.success(res, "User registered", {
         store: {
@@ -91,6 +95,32 @@ export default class AuthController {
           email: newUser.email,
         },
       });
+    } catch (error) {
+      next(error);
+    }
+  }
+
+  async ChangePasword(req: Request, res: Response, next: NextFunction) {
+    try {
+      const changePasswordPayload = plainToInstance(
+        ChangePasswordDto,
+        req.body
+      );
+      console.log(changePasswordPayload);
+      await this.otpService.verifyOtp(
+        changePasswordPayload.purpose,
+        changePasswordPayload.otp,
+        changePasswordPayload.email
+      );
+      await this.otpService.revokeAOtp(changePasswordPayload.otp);
+      return ResponseHandler.success(
+        res,
+        await this.service.changePassword(
+          changePasswordPayload.password,
+          changePasswordPayload.email,
+          changePasswordPayload.purpose
+        )
+      );
     } catch (error) {
       next(error);
     }

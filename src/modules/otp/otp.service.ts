@@ -1,4 +1,4 @@
-import otpGenerator from "otp-generator";
+ 
 import { OtpRepository, otpRepository } from "./repository/otp.repository";
 import { OtpPurpose } from "../../common/enum/enums";
 import { ExpressError } from "../../common/class/error";
@@ -16,7 +16,11 @@ export class OTPService {
     this.repository = otpRepository;
   }
   async buildOtp(email: string, purpose: OtpPurpose, duration?: number) {
-    const otp = otpGenerator.generate(6);
+    const digits = "0123456789";
+    let otp = "";
+    for (let i = 0; i < 6; i++) {
+      otp += digits[Math.floor(Math.random() * 10)];
+    }
 
     let verificationToken: DeepPartial<OtpEntity> = {
       purpose,
@@ -44,6 +48,11 @@ export class OTPService {
         email,
       },
     });
+    console.log({
+      purpose,
+      otp,
+      email,
+    })
     if (!vToken) {
       throw new ExpressError(
         400,
@@ -56,11 +65,20 @@ export class OTPService {
     if (vToken.validTill < new Date()) {
       throw new ExpressError(400, `Can't verify token. Token expired.`);
     }
+
     return vToken;
   }
-
-  async revokeAOtp(id: number) {
-    return await this.repository.update({ id }, { isRevoked: true });
+   async revokeAllSimilarOtp(
+    purpose: OtpPurpose,
+    email: string
+  ) {
+    return await this.repository.update(
+      { purpose, email },
+      { isRevoked: true }
+    );
+  }
+  async revokeAOtp(otp: string) {
+    return await this.repository.update({ otp }, { isRevoked: true });
   }
 }
 

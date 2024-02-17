@@ -19,6 +19,12 @@ export class CustomerService {
     return await this.repository.findOne({ where: { email: email } });
   }
 
+ 
+ 
+  async findByNumber(number: string) {
+    return await this.repository.findOne({ where: { phoneNumber: number } });
+  }
+
   async createOne(data: DeepPartial<CustomerEntity>) {
     const customer = this.repository.create({
       name: data.name,
@@ -31,6 +37,15 @@ export class CustomerService {
     return await customer.save();
   }
 
+  async changePassword(email: string, newPassword: string) {
+    const customer = await this.repository.findOne({where: {email} });
+    if (!customer) {
+      throw new Error('Customer not found');
+    }
+    
+    await customer.setPassword(newPassword);
+    return await customer.save();
+  }
   async deleteUser(userId: number) {
     return await this.repository.softDelete({ id: userId });
   }
