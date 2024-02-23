@@ -35,3 +35,16 @@ export enum SortEnum {
   ASC = "asc",
   DESC = "desc",
 }
+
+export enum RatingForEnum{
+  STORE= "store",
+  BOAT = "boat",
+  CYCLE = "cycle"
+}
+
+export enum NotificationTypeEnum {
+  NEW_BOAT = "new_boat",
+  NEW_CYCLE = "new_cycle",
+  UPDATE_BOAT = "update_boat",
+  UPDATE_CYCLE = "update_cycle"
+}

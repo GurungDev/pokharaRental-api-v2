@@ -11,7 +11,7 @@ export class AdminBoatSevice extends BoatService{
     async createBoat(Boat: DeepPartial<BoatEntity>){
         return await this.repository.create(Boat).save();
     }
-
+    
     async delete(id:number){
         return await this.repository.delete({id: id})
     }

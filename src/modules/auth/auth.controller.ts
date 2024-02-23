@@ -40,6 +40,8 @@ export default class AuthController {
     }
   }
 
+
+
   async sendOtp(req: Request, res: Response, next: NextFunction) {
     try {
       const { email, phoneNumber, purpose } = plainToInstance(OtpDto, req.body);

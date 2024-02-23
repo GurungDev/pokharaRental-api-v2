@@ -6,8 +6,8 @@ export class GetBoatDto{
     
     @IsOptional()
     @IsNotEmpty()
-    @IsString()
-    @Transform((v)=> v && Number(v))
+    @IsNumber()
+    @Transform(({ value }) => value && Number(value))
     storeId: number;
 
     @IsOptional()

@@ -83,7 +83,7 @@ export class AuthService {
         break;
 
       case OtpPurpose.SIGNUP_STORE:
-        const store = await this.customerService.findByEmail(email);
+        const store = await this.storeService.findByEmail(email);
         if (store) {
           throw new ExpressError(
             400,
@@ -103,7 +103,7 @@ export class AuthService {
         break;
 
       case OtpPurpose.FORGOT_PASSWORD_STORE:
-        const storePasswordForgot = await this.customerService.findByEmail(
+        const storePasswordForgot = await this.storeService.findByEmail(
           email
         );
         if (!storePasswordForgot) {

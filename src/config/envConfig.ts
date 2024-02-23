@@ -47,6 +47,15 @@ export class EnvConfig {
     providerApiSecret: this.parseString(this.getFromEnv("PROVIDER_API_KEY")),
   };
 
+
+  public static cloudinaryConfig = {
+    name: this.parseString(this.getFromEnv("CLOUDINARY_NAME")),
+    apiKey: this.parseString(this.getFromEnv("CLOUDINARY_API_KEY")),
+    secret: this.parseString(this.getFromEnv("CLOUDINARY_API_KEY_SECRET")),
+  };
+
+
+
   // public static frontendUrl = this.parseString(this.getFromEnv("FRONTEND_URL"));
  
   // public static s3Config = {

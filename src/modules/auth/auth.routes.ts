@@ -3,6 +3,7 @@ import { authController } from "./auth.controller";
 import { ChangePasswordDto, CustomerRegisterDto, LoginDto, OtpDto, StoreRegisterDto } from "./auth.dto";
 import { RequestDataPaths } from "../../common/enum/enums";
 import { Validator } from "../../common/class/validator";
+import authMiddleware, { userChecker } from "./middleware/auth.middleware";
 
 const authRouter = Router({ mergeParams: true });
 
@@ -11,6 +12,9 @@ authRouter.post(
   Validator.validate(LoginDto, RequestDataPaths.Body),
   authController.login.bind(authController)
 );
+
+
+
 
 authRouter.post(
   "/sendOtp",
