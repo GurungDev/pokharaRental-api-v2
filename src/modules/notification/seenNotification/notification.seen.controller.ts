@@ -27,16 +27,7 @@ export class NotificationSeenController{
         }
     }
 
-    async seenAll(req: Request, res: Response, next: NextFunction){
-        try {
-            const user = req.userId  
-            const { id: projectId } = plainToInstance(ValidateId, req.params)
-            await this.notificationSeenService.seenAll(user,projectId);
-            return ResponseHandler.success(res, "Notification seen")
-        } catch (error) {
-            next(error)
-        }
-    }
+ 
 }
 
 export const notificationSeenController = new NotificationSeenController();

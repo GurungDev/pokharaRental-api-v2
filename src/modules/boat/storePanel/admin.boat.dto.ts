@@ -1,5 +1,6 @@
 import { Transform } from "class-transformer";
 import { IsNotEmpty, IsNumber, IsString, Min, isNotEmpty, min } from "class-validator";
+import { Multer } from "multer";
 
 export class CreateBoatDto {
     @IsNotEmpty()
@@ -21,6 +22,4 @@ export class CreateBoatDto {
     @IsNotEmpty()
     @IsString()
     description: string;
-
- 
 }

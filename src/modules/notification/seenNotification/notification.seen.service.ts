@@ -27,18 +27,6 @@ export class NotificationSeenService {
       .save();
   }
 
-  async seenAll(userId: number, projectId: number) {
-    const notifications =
-      await this.notification.getUnSeenNotificationAccordingToStoreId(
-        userId,
-        []
-      );
-    notifications.map(async (i) => {
-      await this.repository
-        .create({ user: { id: userId }, notification: { id: i.id } })
-        .save();
-    });
-  }
 
   async getOne(userId: number, notificationId: number) {
     return this.repository.findOne({ where: { user: { id: userId }, notification: { id: notificationId } } });

@@ -13,7 +13,7 @@ export default class StoreEntity extends CustomBaseEntity {
     @Column()
     password: string;
 
-    @Column()
+    @Column( )
     salt: string;
 
 

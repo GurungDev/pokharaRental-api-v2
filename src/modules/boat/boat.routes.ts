@@ -5,9 +5,10 @@ import { Validator } from "../../common/class/validator";
 import { GetBoatDto } from "./boat.dto";
 import { RequestDataPaths } from "../../common/enum/enums";
 import { PaginationRequest } from "../../common/validation/paginationRequest.validation";
+import { ValidateId } from "../../common/validation/id.validate";
 
 const boatRouter = Router({ mergeParams: true });
 boatRouter.get("/", Validator.validate(PaginationRequest, RequestDataPaths.Query), Validator.validate(GetBoatDto, RequestDataPaths.Query), boatController.get.bind(boatController));
-boatRouter.get("/:id", boatController.retrieve.bind(boatController));
+boatRouter.get("/:id",Validator.validate(ValidateId, RequestDataPaths.Query), boatController.retrieve.bind(boatController));
 
 export default boatRouter;

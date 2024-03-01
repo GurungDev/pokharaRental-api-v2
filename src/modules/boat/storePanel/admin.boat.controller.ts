@@ -5,12 +5,15 @@ import { plainToInstance } from "class-transformer";
 import { ValidateId } from "../../../common/validation/id.validate";
 import { ExpressError } from "../../../common/class/error";
 import { CreateBoatDto } from "./admin.boat.dto";
-import { UserEnum } from "../../../common/enum/enums";
+import { NotificationTypeEnum, UserEnum } from "../../../common/enum/enums";
+import { Notification, notificationService } from "../../notification/notification.service";
 
 export default class AdminBoatcontroller{
     private readonly service: AdminBoatSevice;
+    private readonly notificationService: Notification;
     constructor(){
         this.service = adminBoatService;
+        this.notificationService = notificationService
     }
 
     private async checkStoreIdentity(req: Request){
@@ -31,11 +34,12 @@ export default class AdminBoatcontroller{
               CreateBoatDto,
               req.body
             );
+            const thumbnail = req.body?.thumbnail
+            const secondaryImage = req.body?.secondaryImage
             const storeId = await this.checkStoreIdentity(req);
-            const newBoat = await this.service.createBoat({capacity, priceInRs, title, description, store: {id: storeId} })
-            return ResponseHandler.success(res, "Boat created successfully", {
-                newBoat,
-            });
+            const newBoat = await this.service.createBoat({capacity, priceInRs,thumbnail,secondaryImage,  title, description, store: {id: storeId} })
+            ResponseHandler.success(res, "Boat created successfully", newBoat);
+            notificationService.createNotification({notificationFor: NotificationTypeEnum.NEW_BOAT, title:`New Boat Added`, description: `${newBoat.title} cycle added in ${newBoat.store.name}.`, store: {id: storeId}})
           } catch (error: any) {
             next(error);
           }
@@ -85,11 +89,15 @@ export default class AdminBoatcontroller{
             if(!boats){
                 throw new ExpressError(404, "Boats not found")
             }
-            await this.service.patch(id, payload)
-            return ResponseHandler.success(res, 
-                "Successfully retrieved",
-                boats
+
+            const thumbnail = req.body?.thumbnail
+            const secondaryImage = req.body?.secondaryImage
+            ResponseHandler.success(res, 
+                "Successfully updated",
+              
             )
+            await this.service.patch(id, {...payload, thumbnail, secondaryImage})
+           
         } catch (error) {
             next(error)
         }

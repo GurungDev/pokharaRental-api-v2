@@ -17,7 +17,7 @@ subscriberRoutes.post(
 subscriberRoutes.post(
   "/:storeId/unfollow", // notificationId
   Validator.validate(SubscriberDto, RequestDataPaths.Params),
-  subscriberController.follow.bind(subscriberController)
+  subscriberController.unfollow.bind(subscriberController)
 );
  
 subscriberRoutes.get(

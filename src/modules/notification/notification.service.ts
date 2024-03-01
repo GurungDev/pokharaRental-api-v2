@@ -41,7 +41,6 @@ export class Notification {
       }
     });
 
-  
     const unseenNotification = await this.getUnSeenNotificationAccordingToStoreId(userID, storeId)
 
     const paginationInfo = getPaginationResult(unseenNotification.length, { limit, page })
@@ -87,7 +86,7 @@ export class Notification {
     return notification;
   }
 
-  async createNotificationAndNotifyAll(
+  async createNotification(
     notification: DeepPartial<NotificationEntity>) {
     return await this.repository.create(notification).save();
   }

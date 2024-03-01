@@ -12,6 +12,12 @@ export default class CycleEntity extends CustomBaseEntity {
     @Column()
     title: string;
 
+    @Column({nullable: true})
+    thumbnail: string;
+
+    @Column({nullable: true})
+    secondaryImage: string;
+
     @Column({ nullable: true})
     description: string
 

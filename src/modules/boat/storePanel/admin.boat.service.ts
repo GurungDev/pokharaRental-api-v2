@@ -17,8 +17,8 @@ export class AdminBoatSevice extends BoatService{
     }
 
     async patch(id: number, Boat: Partial<BoatEntity> ){
-        await this.repository.update(id, Boat);
-        return await this.repository.findBy({id})
+       
+        return  await this.repository.update(id, Boat);
     }
 }
 

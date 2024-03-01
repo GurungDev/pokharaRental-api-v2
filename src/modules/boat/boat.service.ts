@@ -7,13 +7,13 @@ import BoatEntity from "./entities/boat.entity";
 import { RatingEntity } from "../ratings/entities/ratings.entity";
 import { getPaginationResult } from "../../common/service/paginationService";
 import { RatingService, ratingService } from "../ratings/ratings.service";
-type getProductType = {
+export type getProductType = {
     storeId?: number;
     isPublised?: boolean;
     search?: string;
 };
 
-type productSortType = {
+export type productSortType = {
     sortBy?: SortByProductEnum;
     order?: SortEnum;
 };

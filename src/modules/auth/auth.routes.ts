@@ -13,9 +13,6 @@ authRouter.post(
   authController.login.bind(authController)
 );
 
-
-
-
 authRouter.post(
   "/sendOtp",
   Validator.validate(OtpDto, RequestDataPaths.Body),

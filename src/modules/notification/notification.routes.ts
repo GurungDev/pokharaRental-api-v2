@@ -3,8 +3,8 @@ import { Validator } from "../../common/class/validator";
  
 import { PaginationRequest } from "../../common/validation/paginationRequest.validation";
 import { notificationController } from "./notification.controller";
+ import { RequestDataPaths } from "../../common/enum/enums";
 import notificationSeenRoutes from "./seenNotification/notification.seen.routes";
-import { RequestDataPaths } from "../../common/enum/enums";
 
 const notificationRoutes = Router({ mergeParams: true });
 notificationRoutes.get(

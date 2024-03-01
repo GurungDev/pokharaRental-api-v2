@@ -7,6 +7,7 @@ import { Validator } from "../../../common/class/validator";
 import { CreateCycleDto } from "./admin.cycle.dto";
 import { RequestDataPaths } from "../../../common/enum/enums";
 import { ValidateId } from "../../../common/validation/id.validate";
+import uploadImage from "../../../common/middleware/fileupload.middleware";
 
 const adminCycleRouter = Router({ mergeParams: true });
 
@@ -14,6 +15,7 @@ adminCycleRouter.post(
   "/",
   authMiddleware,
   storeChecker,
+  uploadImage(),
   Validator.validate(CreateCycleDto, RequestDataPaths.Body),
   adminCycleController.post.bind(adminCycleController)
 );
@@ -34,6 +36,7 @@ adminCycleRouter.patch(
   "/:id",
   authMiddleware,
   storeChecker,
+  uploadImage(),
   Validator.validate(ValidateId, RequestDataPaths.Params),
   Validator.validate(CreateCycleDto, RequestDataPaths.Body),
   adminCycleController.patch.bind(adminCycleController)

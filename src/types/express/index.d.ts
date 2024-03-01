@@ -5,5 +5,6 @@ declare global{
     interface Request {
         userId: number;
         role: UserEnum;
+        files: {listingImage: string};
     }
 }}

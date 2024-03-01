@@ -3,6 +3,7 @@
 import cors from "cors";
 import MainRouter from "./mainRouter";
 import { errorHandler } from "./common/middleware/error.middleware";
+import uploadImage from "./common/middleware/fileupload.middleware";
 
 
 const pokharaRental = () => {
@@ -12,6 +13,7 @@ const pokharaRental = () => {
     app.use(cors());
     app.use(morgan("dev"));
     app.use("/api", MainRouter);
+    app.post("/test", uploadImage(), ()=>{console.log("done")})
     app.use(errorHandler);
     return app;
   };

@@ -166,7 +166,7 @@ export class AuthService {
           password
         );
         return "Sucesssfully Changed Password";
-      case OtpPurpose.FORGOT_PASSWORD_CUSTOMER:
+      case OtpPurpose.FORGOT_PASSWORD_STORE:
         const store = await this.storeService.changePassword(email, password);
         return "Sucesssfully Changed Password";
       default:
@@ -178,6 +178,7 @@ export class AuthService {
     let validationResponse;
     if (validateFor == UserEnum.STORE) {
       validationResponse = await this.storeService.findByEmail(email);
+      console.log(validationResponse)
       if (!validationResponse) {
         throw new ExpressError(404, "Store not found");
       }

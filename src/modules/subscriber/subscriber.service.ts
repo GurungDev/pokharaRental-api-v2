@@ -20,7 +20,7 @@ export class SubscriberService {
   }
 
   async getSubscriberAccordingToUserId(userId: number){
-    return this.repository.findOne({ where: { user: { id: userId } } })
+    return this.repository.find({ where: { user: { id: userId } }, relations: {store: true} })
   }
 
   async deleteSubscriber(userId: number, storeId: number){

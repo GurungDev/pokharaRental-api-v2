@@ -14,9 +14,6 @@ notificationSeenRoutes.post(
   notificationSeenController.post.bind(notificationSeenController)
 );
 
-notificationSeenRoutes.post(
-  "/", 
-  notificationSeenController.seenAll.bind(notificationSeenController)
-);
+ 
 
 export default notificationSeenRoutes;

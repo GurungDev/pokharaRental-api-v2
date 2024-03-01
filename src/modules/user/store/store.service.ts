@@ -18,15 +18,15 @@ export class StoreService {
   }
 
   async findByEmail(email: string) {
-    return await this.repository.findOne({ where: { email: email } });
+    return await this.repository.findOne({ where: { email: email }});
   }
 
   async changePassword(email: string, newPassword: string) {
-    const customer = await this.repository.findOne({where: {email} });
+    const customer = await this.repository.findOne({ where: { email } });
     if (!customer) {
       throw new Error('Customer not found');
     }
-    
+
     await customer.setPassword(newPassword);
     return await customer.save();
   }

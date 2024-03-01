@@ -12,6 +12,12 @@ export default class BoatEntity extends CustomBaseEntity {
     @Column()
     priceInRs: number;
 
+    @Column({nullable: true})
+    thumbnail: string;
+
+    @Column({nullable: true})
+    secondaryImage: string;
+
     @Column()
     title: string;
 
