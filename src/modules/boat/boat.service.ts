@@ -32,49 +32,90 @@ export default class BoatService {
         { sortBy, order }: productSortType
     ) {
 
-        let qb: SelectQueryBuilder<BoatEntity> = this.repository
-            .createQueryBuilder("boat")
-            .leftJoinAndSelect("boat.store", "c")
-            .select([
-                "boat",
-                "c.name",
-                "c.id"
-            ]);
+        let list = await this.repository.query(`
+            SELECT * FROM "Boats" left join (SELECT "ratings"."issueId",  COUNT(*) AS ratingCount, SUM(star)/COUNT(*) AS TotalStar
+            FROM ratings WHERE "ratings"."ratingFor" ='boat'
+            GROUP BY  "ratings"."issueId") "rt" on "rt"."issueId" = "Boats"."id"
+        `);
 
-        if (sortBy === undefined) {
-        } else if (sortBy == SortByProductEnum.DATE) {
-            if (order == SortEnum.ASC) {
-                qb = qb.orderBy("boat.createdAt", "ASC");
+        // Sorting
+        if (sortBy === SortByProductEnum.DATE) {
+            if (order === SortEnum.ASC) {
+                list.sort((a:any, b:any) => a.createdAt - b.createdAt);
             } else {
-                qb = qb.orderBy("boat.createdAt", "DESC");
+                list.sort((a:any, b:any) => b.createdAt - a.createdAt);
             }
-        } else if (sortBy == SortByProductEnum.NAME) {
-            if (order == SortEnum.ASC) {
-                qb = qb.orderBy("boat.title", "ASC");
-            } else {
-                qb = qb.orderBy("boat.title", "DESC");
-            }
-        } else if (sortBy == SortByProductEnum.PRICE) {
-            if (order == SortEnum.ASC) {
-                qb = qb.orderBy("boat.priceInRs", "ASC");
-            } else {
-                qb = qb.orderBy("boat.priceInRs", "DESC");
-            }
+        } else if (sortBy === SortByProductEnum.NAME) {
+            list.sort((a:any, b:any) => a.title.localeCompare(b.title));
+        } else if (sortBy === SortByProductEnum.PRICE) {
+            list.sort((a:any, b:any) => a.priceInRs - b.priceInRs);
         }
 
-        if (search === undefined) {
-        } else {
-            qb = qb.andWhere("LOWER(boat.title) LIKE  :search", { search: `%${search.toLowerCase()}%` });
+        // Filtering
+        if (search !== undefined) {
+            list = list.filter((boat : any) => boat.title.toLowerCase().includes(search.toLowerCase()));
         }
 
-        if (storeId === undefined) {
-        } else {
-            qb = qb.andWhere("c.id = :storeId", { storeId });
-        }
-        const [result, count] = await qb.skip((page - 1) * limit).take(limit).getManyAndCount();
+        // Pagination
+        const paginationInfo = getPaginationResult(list.length, { limit, page });
+        const paginatedList = list.slice((page - 1) * limit, page * limit);
 
-        const paginationInfo = getPaginationResult(count, { limit, page })
-        return [result, paginationInfo];
+        return [paginatedList, paginationInfo];
+
+
+        // let qb = this.repository.createQueryBuilder("Boats")
+        // .leftJoin(
+        //     (subQuery) => {
+        //         return subQuery
+        //             .select("ratings.issueId", "issueId")
+        //             .addSelect("COUNT(*)", "ratingCount")
+        //             .addSelect("SUM(star) / COUNT(*)", "TotalStar")
+        //             .from("ratings", "ratings")
+        //             .where("ratings.ratingFor = :ratingFor", { ratingFor: 'boat' }) // Correctly bind the parameter here
+        //             .groupBy("ratings.issueId")
+        //     },
+        //     "ratings", // Alias for the subquery
+        //     "ratings.issueId = Boats.id" // Join condition
+        // )
+        // .orderBy("Boats.createdAt", "DESC")
+        // .limit(limit)
+        // .offset((page - 1) * limit);
+
+        // if (sortBy === undefined) {
+        // } else if (sortBy == SortByProductEnum.DATE) {
+        //     if (order == SortEnum.ASC) {
+        //         qb = qb.orderBy("boat.createdAt", "ASC");
+        //     } else {
+        //         qb = qb.orderBy("boat.createdAt", "DESC");
+        //     }
+        // } else if (sortBy == SortByProductEnum.NAME) {
+        //     if (order == SortEnum.ASC) {
+        //         qb = qb.orderBy("boat.title", "ASC");
+        //     } else {
+        //         qb = qb.orderBy("boat.title", "DESC");
+        //     }
+        // } else if (sortBy == SortByProductEnum.PRICE) {
+        //     if (order == SortEnum.ASC) {
+        //         qb = qb.orderBy("boat.priceInRs", "ASC");
+        //     } else {
+        //         qb = qb.orderBy("boat.priceInRs", "DESC");
+        //     }
+        // }
+
+        // if (search === undefined) {
+        // } else {
+        //     qb = qb.andWhere("LOWER(boat.title) LIKE  :search", { search: `%${search.toLowerCase()}%` });
+        // }
+
+        // if (storeId === undefined) {
+        // } else {
+        //     qb = qb.andWhere("c.id = :storeId", { storeId });
+        // }
+        // const [result, count] = await qb.skip((page - 1) * limit).take(limit).getManyAndCount();
+
+        // const paginationInfo = getPaginationResult(count, { limit, page })
+        // return [result, paginationInfo];
+        return list;
     }
 
     async getBoatById(id: number) {
