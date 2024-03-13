@@ -22,7 +22,6 @@ export class RatingService {
 
     async getRatingAccordingToIssuedItem(ratingFor: RatingForEnum, issueId: number) {
         const [ratingList, count] = await this.repository.findAndCount({ where: { ratingFor: ratingFor, issueId: issueId } })
-
         return { ratingList, count }
     }
 

@@ -126,7 +126,9 @@ export default class BoatService {
             .select([
                 "boat",
                 "c.name",
-                "c.id"
+                "c.id",
+                "c.location",
+                "c.phoneNumber"
             ]);
 
         return await qb.getOne();
