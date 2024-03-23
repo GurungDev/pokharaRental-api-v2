@@ -6,6 +6,7 @@ import notificationRoutes from "../../notification/notification.routes";
 import subscriberRoutes from "../../subscriber/subscriber.routes";
  import { customerController } from "./customer.controller";
 import Store_customerRouter from "../store/customer/customer.store.router";
+import OrderRoutes from "../../order/order.routes";
 
 const userRouter = Router({ mergeParams: true });
 
@@ -21,5 +22,6 @@ userRouter.use("/cycle", cycleRouter)
 userRouter.use("/store", Store_customerRouter)
 userRouter.use("/subscriber", authMiddleware, userChecker, subscriberRoutes)
 userRouter.use("/notification", authMiddleware, userChecker, notificationRoutes)
+userRouter.use("/order", authMiddleware, userChecker ,OrderRoutes)
 
 export default userRouter;

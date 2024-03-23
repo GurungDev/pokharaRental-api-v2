@@ -1,6 +1,7 @@
-import { Column, Entity, ManyToOne, PrimaryGeneratedColumn } from "typeorm";
+import { Column, Entity, ManyToOne, OneToMany, PrimaryGeneratedColumn } from "typeorm";
 import { CustomBaseEntity } from "../../../common/baseEntity/custom-base-entity";
 import StoreEntity from "../../user/store/entities/store.entity";
+import OrderEntity from "../../order/entities/order.entity";
  
 
 @Entity({name: 'Boats'})
@@ -26,4 +27,7 @@ export default class BoatEntity extends CustomBaseEntity {
 
     @ManyToOne(() => StoreEntity, (store) => store.boats)
     store: StoreEntity
+
+    @OneToMany(() => OrderEntity, (order) => order.boat)
+    orders: OrderEntity[]
 }

@@ -3,6 +3,7 @@ import { CustomBaseEntity } from "../../../../common/baseEntity/custom-base-enti
  
 import { generateHash } from "../../../../common/function/hashing";
 import { SubscriberEntity } from "../../../subscriber/entities/subscriber.entity";
+import OrderEntity from "../../../order/entities/order.entity";
  
 @Entity({name: 'Customers'})
 export default class CustomerEntity extends CustomBaseEntity {
@@ -25,6 +26,9 @@ export default class CustomerEntity extends CustomBaseEntity {
 
     @OneToMany(() => SubscriberEntity, (subscriber) => subscriber.user)
     subscribers: SubscriberEntity[]
+
+    @OneToMany(() => OrderEntity, (order) => order.customer)
+    orders: OrderEntity[]
 
     async verifyPassword(password: string): Promise<boolean>{
         const {hashedValue: hashedPassword} = await generateHash(password, this.salt);

@@ -55,40 +55,12 @@ export class EnvConfig {
   };
 
 
-
-  // public static frontendUrl = this.parseString(this.getFromEnv("FRONTEND_URL"));
+  
+  public static EsewaConfig = {
+    url: this.parseString(this.getFromEnv("ESEWA_URL")),
+    secretKey: this.parseString(this.getFromEnv("ESEWA_SECRET_KEY"))
+  };
  
-  // public static s3Config = {
-  //   endpoint: this.parseString(this.getFromEnv("ENDPOINT")),
-  //   region: this.parseString(this.getFromEnv("REGION")),
-  //   bucket: this.parseString(this.getFromEnv("BUCKET")),
-  //   accessKey: this.parseString(this.getFromEnv("ACCESSKEY")),
-  //   secretKey: this.parseString(this.getFromEnv("SECRETKEY")),
-  // };
-
-  // public static smsConfig = {
-  //   sparrow: {
-  //     url: this.parseString(this.getFromEnv("SPARROW_URL")),
-  //     token: this.parseString(this.getFromEnv("SPARROW_TOKEN")),
-  //     sender: this.parseString(this.getFromEnv("SPARROW_SENDER")),
-  //   },
-  // };
-
-
-  // public static khaltiConfig = {
-  //   url: this.parseString(this.getFromEnv("KHALTI_URL")),
-  //   secretKey: this.parseString(this.getFromEnv("KHALTI_SECRETKEY")),
-  //   publicKey: this.parseString(this.getFromEnv("KHALTI_PUBLICKEY"))
-  // };
-
-  // public static EsewaConfig = {
-  //   url: this.parseString(this.getFromEnv("ESEWA_URL")),
- 
-  // };
-  // public static thumbnailCompression = this.parseInt(
-  //   this.getFromEnv("THUMBNAIL_COMPRESSION")
-  // );
-
   private static getFromEnv(key: string) {
     return process.env[key];
   }

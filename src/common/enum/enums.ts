@@ -48,3 +48,15 @@ export enum NotificationTypeEnum {
   UPDATE_BOAT = "update_boat",
   UPDATE_CYCLE = "update_cycle"
 }
+
+
+export enum ProductEnum{
+  BOAT = "boat",
+  CYCLE = "cycle"
+}
+
+
+export enum PaymentType{
+  CASH = "cash",
+  ESEWA = "esewa"
+}
