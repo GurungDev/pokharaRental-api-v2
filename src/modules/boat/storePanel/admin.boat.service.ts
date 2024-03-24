@@ -13,12 +13,11 @@ export class AdminBoatSevice extends BoatService{
     }
     
     async delete(id:number){
-        return await this.repository.delete({id: id})
+        return await this.repository.softDelete({id: id})
     }
 
     async patch(id: number, Boat: Partial<BoatEntity> ){
-       
-        return  await this.repository.update(id, Boat);
+         await this.repository.update(id, Boat);
     }
 }
 

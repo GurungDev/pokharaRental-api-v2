@@ -1,4 +1,4 @@
-import { Column, Entity, ManyToOne, OneToMany, PrimaryGeneratedColumn } from "typeorm";
+import { Column, DeleteDateColumn, Entity, ManyToOne, OneToMany, PrimaryGeneratedColumn } from "typeorm";
 import { CustomBaseEntity } from "../../../common/baseEntity/custom-base-entity";
 import StoreEntity from "../../user/store/entities/store.entity";
 import OrderEntity from "../../order/entities/order.entity";
@@ -30,4 +30,7 @@ export default class BoatEntity extends CustomBaseEntity {
 
     @OneToMany(() => OrderEntity, (order) => order.boat)
     orders: OrderEntity[]
+
+    @DeleteDateColumn()
+    deletedAt: Date
 }

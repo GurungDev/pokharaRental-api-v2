@@ -27,7 +27,8 @@ export class StoreHighLightController {
     async delete(req: Request, res: Response, next: NextFunction) {
         try {
             const { issueId, highlightFor } = plainToInstance(DeleteHighLight, req.body);
-            await this.service.deleteHighLight(highlightFor, issueId);
+
+            console.log(await this.service.deleteHighLight(highlightFor, issueId))
             return ResponseHandler.success(res,
                 "Successfully Deleted")
         } catch (error) {

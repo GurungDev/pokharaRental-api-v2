@@ -11,7 +11,7 @@ const storeRouter = Router({mergeParams: true});
 storeRouter.use("/boat", adminBoatRouter)
 storeRouter.use("/cycle", adminCycleRouter)
 storeRouter.use("/subscriber", storeSubscriberRoutes)
-storeRouter.use("/highLight", StoreHighLightRouter)
+storeRouter.use("/highlight", StoreHighLightRouter)
 storeRouter.use("/order",authMiddleware ,storeChecker, StoreOrderRoutes)
 
 

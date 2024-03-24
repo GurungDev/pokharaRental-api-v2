@@ -7,52 +7,59 @@ import { ExpressError } from "../../../common/class/error";
 import { CreateBoatDto } from "./admin.boat.dto";
 import { NotificationTypeEnum, UserEnum } from "../../../common/enum/enums";
 import { Notification, notificationService } from "../../notification/notification.service";
+import { StoreService, storeService } from "../../user/store/store.service";
 
-export default class AdminBoatcontroller{
+export default class AdminBoatcontroller {
     private readonly service: AdminBoatSevice;
     private readonly notificationService: Notification;
-    constructor(){
+    private readonly store: StoreService;
+    constructor() {
         this.service = adminBoatService;
         this.notificationService = notificationService
+        this.store = storeService
     }
 
-    private async checkStoreIdentity(req: Request){
-       try {
-        const storeId = req.userId;
-        if(req.role != UserEnum.STORE){
-            throw new ExpressError(400, "Only stores can add boats")
-        }
-        return storeId
-       } catch (error) {
-        return 0
-       }
-    }
-
-    async post(req: Request, res: Response, next: NextFunction){
+    private async checkStoreIdentity(req: Request) {
         try {
-            const { capacity, priceInRs, title, description} = plainToInstance(
-              CreateBoatDto,
-              req.body
+            const storeId = req.userId;
+            if (req.role != UserEnum.STORE) {
+                throw new ExpressError(400, "Only stores can add boats")
+            }
+            return storeId
+        } catch (error) {
+            return 0
+        }
+    }
+
+    async post(req: Request, res: Response, next: NextFunction) {
+        try {
+            const { capacity, priceInRs, title, description } = plainToInstance(
+                CreateBoatDto,
+                req.body
             );
             const thumbnail = req.body?.thumbnail
+            if (!thumbnail) {
+                throw new ExpressError(400, "Thumnail is required !!")
+            }
             const secondaryImage = req.body?.secondaryImage
             const storeId = await this.checkStoreIdentity(req);
-            const newBoat = await this.service.createBoat({capacity, priceInRs,thumbnail,secondaryImage,  title, description, store: {id: storeId} })
+            const newBoat = await this.service.createBoat({ capacity, priceInRs, thumbnail, secondaryImage, title, description, store: { id: storeId } })
             ResponseHandler.success(res, "Boat created successfully", newBoat);
-            notificationService.createNotification({notificationFor: NotificationTypeEnum.NEW_BOAT, title:`New Boat Added`, description: `${newBoat.title} cycle added in ${newBoat.store.name}.`, store: {id: storeId}})
-          } catch (error: any) {
+            const store = await this.store.findBYId(storeId)
+            notificationService.createNotification({ notificationFor: NotificationTypeEnum.NEW_BOAT, title: `New Boat Added`, description: `${newBoat.title} cycle added in ${store?.name}.`, store: { id: storeId } })
+        } catch (error: any) {
             next(error);
-          }
+        }
     }
 
-    async get(req: Request, res: Response, next: NextFunction){
+    async get(req: Request, res: Response, next: NextFunction) {
         try {
             const storeId = await this.checkStoreIdentity(req);
             const boats = await this.service.getBoatsAccordingToStoreId(storeId);
-            if(!boats){
+            if (!boats) {
                 throw new ExpressError(404, "Boats not found")
             }
-            return ResponseHandler.success(res, 
+            return ResponseHandler.success(res,
                 "Successfully retrieved",
                 boats
             )
@@ -61,14 +68,14 @@ export default class AdminBoatcontroller{
         }
     }
 
-    async retrieve(req: Request, res: Response, next: NextFunction){
+    async retrieve(req: Request, res: Response, next: NextFunction) {
         try {
-            const {id} = plainToInstance(ValidateId, req.params);
+            const { id } = plainToInstance(ValidateId, req.params);
             const boats = await this.service.getBoatAccordingToId(id);
-            if(!boats){
+            if (!boats) {
                 throw new ExpressError(404, "Boats not found")
             }
-            return ResponseHandler.success(res, 
+            return ResponseHandler.success(res,
                 "Successfully retrieved",
                 boats
             )
@@ -77,40 +84,41 @@ export default class AdminBoatcontroller{
         }
     }
 
-    async patch(req: Request, res: Response, next: NextFunction){
+    async patch(req: Request, res: Response, next: NextFunction) {
         try {
-            const {id} = plainToInstance(ValidateId, req.params);
+            const { id } = plainToInstance(ValidateId, req.params);
             const payload = plainToInstance(
                 CreateBoatDto,
                 req.body
             );
             const storeId = await this.checkStoreIdentity(req);
             const boats = await this.service.getBoatAccordingToId(id);
-            if(!boats){
+            if (!boats) {
                 throw new ExpressError(404, "Boats not found")
             }
 
             const thumbnail = req.body?.thumbnail
             const secondaryImage = req.body?.secondaryImage
-            ResponseHandler.success(res, 
+
+            await this.service.patch(id, { ...payload, thumbnail, secondaryImage })
+            return ResponseHandler.success(res,
                 "Successfully updated",
-              
             )
-            await this.service.patch(id, {...payload, thumbnail, secondaryImage})
-           
+
+
         } catch (error) {
             next(error)
         }
     }
 
-    async delete(req: Request, res: Response, next: NextFunction){
+    async delete(req: Request, res: Response, next: NextFunction) {
         try {
-            const {id} = plainToInstance(ValidateId, req.params);
-            if(!await this.service.getBoatAccordingToId(id)){
+            const { id } = plainToInstance(ValidateId, req.params);
+            if (!await this.service.getBoatAccordingToId(id)) {
                 throw new ExpressError(404, "boat not found.")
             }
             const boats = await this.service.delete(id);
-            return ResponseHandler.success(res, 
+            return ResponseHandler.success(res,
                 "Successfully deleted",
             )
         } catch (error) {
@@ -118,11 +126,11 @@ export default class AdminBoatcontroller{
         }
     }
 
-    async getCount(req: Request, res: Response, next: NextFunction){
+    async getCount(req: Request, res: Response, next: NextFunction) {
         try {
             const storeId = await this.checkStoreIdentity(req);
             const boats = await this.service.getBoatsCountAccordingToStoreId(storeId);
-            return ResponseHandler.success(res, 
+            return ResponseHandler.success(res,
                 "Successfully retrieved",
                 boats
             )
@@ -131,7 +139,7 @@ export default class AdminBoatcontroller{
         }
     }
 
-    
+
 }
 
 export const adminBoatController = new AdminBoatcontroller();

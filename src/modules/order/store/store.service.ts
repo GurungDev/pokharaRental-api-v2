@@ -23,18 +23,21 @@ export class StoreOrderService extends OrderService {
                 'boat.id',
                 'boat.title',
             ])
+            .withDeleted()
             .leftJoin('order.boat', 'boat')
+ 
             .leftJoin('order.cycle', 'cycle')
             .leftJoin('boat.store', 'bs')
             .leftJoin('cycle.store', 'cs')
             .where('bs.id = :storeId OR cs.id = :storeId', { storeId })
+
             .getMany();
-            return query;
+        return query;
 
 
     }
 
- 
+
 
 }
 

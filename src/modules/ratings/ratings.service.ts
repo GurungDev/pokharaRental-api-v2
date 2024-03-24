@@ -41,17 +41,17 @@ export class RatingService {
         switch (ratingFor) {
             case RatingForEnum.BOAT:
                 queryBuilder = queryBuilder.addSelect('boat')
-                    .leftJoin('BoatEntity', 'boat', 'rating.issueId = boat.id')
+                    .innerJoin('BoatEntity', 'boat', 'rating.issueId = boat.id  AND boat.deletedAt IS NULL')
                     .addGroupBy('boat.id')
                 break;
             case RatingForEnum.CYCLE:
                 queryBuilder = queryBuilder.addSelect('cycle')
-                    .leftJoin('CycleEntity', 'cycle', 'rating.issueId = cycle.id')
+                    .innerJoin('CycleEntity', 'cycle', 'rating.issueId = cycle.id AND cycle.deletedAt IS NULL')
                     .addGroupBy('cycle.id')
                 break;
             case RatingForEnum.STORE:
                 queryBuilder = queryBuilder.addSelect('store')
-                    .leftJoin('StoreEntity', 'store', 'rating.issueId = store.id')
+                    .innerJoin('StoreEntity', 'store', 'rating.issueId = store.id')
                     .addGroupBy('store.id')
                 break;
             default:

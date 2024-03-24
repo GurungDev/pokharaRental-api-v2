@@ -21,9 +21,14 @@ export default class CycleService {
         { sortBy, order }: productSortType
     ) {
         let list = await this.repository.query(`
-        SELECT * FROM "Cycles" left join (SELECT "ratings"."issueId",  COUNT(*) AS ratingCount, SUM(star)/COUNT(*) AS TotalStar
-        FROM ratings WHERE "ratings"."ratingFor" ='boat'
-        GROUP BY  "ratings"."issueId") "rt" on "rt"."issueId" = "Cycles"."id"
+        SELECT * FROM "Cycles"
+        LEFT JOIN (
+            SELECT "ratings"."issueId", COUNT(*) AS ratingCount, SUM(star)/COUNT(*) AS TotalStar
+            FROM ratings
+            WHERE "ratings"."ratingFor" = 'cycle'
+            GROUP BY "ratings"."issueId"
+        ) "rt" ON "rt"."issueId" = "Cycles"."id"
+        WHERE "Cycles"."deletedAt" IS NULL
     `);
 
         // Sorting
@@ -34,9 +39,19 @@ export default class CycleService {
                 list.sort((a: any, b: any) => b.createdAt - a.createdAt);
             }
         } else if (sortBy === SortByProductEnum.NAME) {
-            list.sort((a: any, b: any) => a.title.localeCompare(b.title));
+            if (order === SortEnum.ASC) {
+                list.sort((a: any, b: any) => a.title.localeCompare(b.title));
+            } else {
+                list.sort((a: any, b: any) => b.title.localeCompare(a.title));
+            }
+           
         } else if (sortBy === SortByProductEnum.PRICE) {
-            list.sort((a: any, b: any) => a.priceInRs - b.priceInRs);
+            if (order === SortEnum.ASC) {
+                list.sort((a: any, b: any) => a.priceInRs - b.priceInRs);
+            } else {
+                list.sort((a: any, b: any) => b.priceInRs - a.priceInRs);
+            }
+         
         }
 
         // Filtering

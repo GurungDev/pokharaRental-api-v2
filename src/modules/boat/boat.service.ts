@@ -33,27 +33,42 @@ export default class BoatService {
     ) {
 
         let list = await this.repository.query(`
-            SELECT * FROM "Boats" left join (SELECT "ratings"."issueId",  COUNT(*) AS ratingCount, SUM(star)/COUNT(*) AS TotalStar
-            FROM ratings WHERE "ratings"."ratingFor" ='boat'
-            GROUP BY  "ratings"."issueId") "rt" on "rt"."issueId" = "Boats"."id"
-        `);
+        SELECT * FROM "Boats"
+        LEFT JOIN (
+            SELECT "ratings"."issueId", COUNT(*) AS ratingCount, SUM(star)/COUNT(*) AS TotalStar
+            FROM ratings
+            WHERE "ratings"."ratingFor" = 'boat'
+            GROUP BY "ratings"."issueId"
+        ) "rt" ON "rt"."issueId" = "Boats"."id"
+        WHERE "Boats"."deletedAt" IS NULL
+    `);
 
         // Sorting
         if (sortBy === SortByProductEnum.DATE) {
             if (order === SortEnum.ASC) {
-                list.sort((a:any, b:any) => a.createdAt - b.createdAt);
+                list.sort((a: any, b: any) => a.createdAt - b.createdAt);
             } else {
-                list.sort((a:any, b:any) => b.createdAt - a.createdAt);
+                list.sort((a: any, b: any) => b.createdAt - a.createdAt);
             }
         } else if (sortBy === SortByProductEnum.NAME) {
-            list.sort((a:any, b:any) => a.title.localeCompare(b.title));
+            if (order === SortEnum.ASC) {
+                list.sort((a: any, b: any) => a.title.localeCompare(b.title));
+            } else {
+                list.sort((a: any, b: any) => b.title.localeCompare(a.title));
+            }
+           
         } else if (sortBy === SortByProductEnum.PRICE) {
-            list.sort((a:any, b:any) => a.priceInRs - b.priceInRs);
+            if (order === SortEnum.ASC) {
+                list.sort((a: any, b: any) => a.priceInRs - b.priceInRs);
+            } else {
+                list.sort((a: any, b: any) => b.priceInRs - a.priceInRs);
+            }
+         
         }
 
         // Filtering
         if (search !== undefined) {
-            list = list.filter((boat : any) => boat.title.toLowerCase().includes(search.toLowerCase()));
+            list = list.filter((boat: any) => boat.title.toLowerCase().includes(search.toLowerCase()));
         }
 
         // Pagination

@@ -13,13 +13,14 @@ export class StoreHighlightService extends HighlightService {
     }
 
     async createHighLight(highlight: DeepPartial<HighlightEntity>) {
-       
+
         return this.repository.create(highlight).save()
     }
 
 
     async deleteHighLight(highLightFor: RatingForEnum, issueId: number) {
-        return await this.repository.delete({ highlightFor: highLightFor, issueId: issueId });
+       
+        return await this.repository.delete({ highlightFor: highLightFor, id: issueId });
     }
 
 }
