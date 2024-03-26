@@ -39,3 +39,13 @@ export class BuyNowDto {
     @IsString()
     token: string;
 }
+
+
+
+export class BuyNowEsewaDto {
+
+    @ValidateIf(values => values.paymentMethod == PaymentType.ESEWA)
+    @IsNotEmpty()
+    @IsString()
+    token: string;
+}

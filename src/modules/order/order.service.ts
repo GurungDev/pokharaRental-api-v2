@@ -41,6 +41,41 @@ export class OrderService {
         }
     }
 
+    async getOrder(transaction_uuid: string) {
+        return await this.repository.findOneBy({ transaction_uuid: transaction_uuid })
+    }
+
+    async findByCustomerId(id: number) {
+        const query = await this.repository
+            .createQueryBuilder('order')
+            .withDeleted()
+            .select([
+                'order.id',
+                'order.quantity',
+                'order.totalPriceInRs',
+                'order.priceOfSingleProduct',
+                'order.bookingDate',
+                'order.durationInHour',
+                'order.transaction_uuid',
+                'boat.id',
+                'boat.title',
+                'boat.thumbnail',
+                'cycle.id',
+                'cycle.title',
+                'cycle.thumbnail',
+                'order.paymentType' 
+            ])
+
+            .leftJoin('order.boat', 'boat')
+            .leftJoin('order.cycle', 'cycle')
+            .leftJoin('boat.store', 'bs')
+            .leftJoin('order.customer', 'c')
+            .leftJoin('cycle.store', 'cs')
+            .where('c.id = :id  ', { id })
+            .andWhere('(order.paymentType <> :paymentType OR (order.paymentType = :paymentType AND order.transaction_code IS NOT NULL))', { paymentType: 'esewa' })
+            .getMany();
+        return query;
+    }
 }
 
 export const orderService = new OrderService();

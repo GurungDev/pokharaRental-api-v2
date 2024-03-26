@@ -22,6 +22,8 @@ export class StoreOrderService extends OrderService {
                 'order.durationInHour',
                 'boat.id',
                 'boat.title',
+                'cycle.id',
+                'cycle.title',
             ])
             .withDeleted()
             .leftJoin('order.boat', 'boat')

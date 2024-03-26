@@ -3,6 +3,8 @@ import { storeRegister } from "./template/storeRegister";
 import { baseTemplate } from "./template/base-template";
 import { customerRegister } from "./template/customerRegister";
 import { passwordChange } from "./template/forgotPassword";
+import OrderEntity from "../order/entities/order.entity";
+import { OrderSuccesMessage } from "./template/orderSuccess";
 
 export class EmailService extends SendGridEmailServiceService{
     constructor(){
@@ -31,6 +33,15 @@ export class EmailService extends SendGridEmailServiceService{
           this.wrapGenericTemplate(customerRegister(otp))
         );
       }
+
+      mailOrderComplete(email: string, order: OrderEntity) {
+        this.sendEmail(
+          [email],
+          "Order Placed Succesfully",
+          this.wrapGenericTemplate(OrderSuccesMessage(order))
+        );
+      }
+
 
       mailPasswordChange(email: string, otp: string) {
         this.sendEmail(

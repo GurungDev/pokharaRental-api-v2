@@ -1,5 +1,5 @@
 import { Expose, Transform, Type, plainToClass, plainToInstance } from "class-transformer";
-import { IsIn, IsNotEmpty, IsNumber, IsObject, IsOptional, IsString, ValidateNested, ValidationOptions, registerDecorator, ValidationArguments, Equals, IsArray, ArrayNotEmpty, IsUrl, IsInt, Min, IsEnum } from "class-validator";
+import { IsIn, IsNotEmpty, IsNumber, IsObject, IsOptional, IsString, ValidateNested, ValidationOptions, registerDecorator, ValidationArguments, Equals, IsArray, ArrayNotEmpty, IsUrl, IsInt, Min, IsEnum, IsISO8601 } from "class-validator";
 import { ProductEnum } from "../../common/enum/enums";
 
 
@@ -22,6 +22,12 @@ export class EsewaInitSinglePayloadDto {
   @IsNotEmpty()
   @IsString()
   transaction_uuid: string;
+
+
+  @IsNotEmpty({ message: 'Booking date is required' })
+  @IsISO8601({ strict: false })
+  bookingDate: Date;
+
 
   @Expose()
   @IsNotEmpty()

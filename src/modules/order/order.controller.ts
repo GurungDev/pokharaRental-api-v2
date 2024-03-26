@@ -1,20 +1,24 @@
 import { plainToInstance } from "class-transformer";
 import { NextFunction, Request, Response } from "express";
-import { EsewaInitSinglePayloadDto, EsewaPayloadDto } from "../paymentGateway/payment.dto";
 import { ExpressError } from "../../common/class/error";
-import { checkOutPaymentService } from "../paymentGateway/payment.service";
 import { ResponseHandler } from "../../common/class/success.response";
-import { OrderService, orderService } from "./order.service";
-import { BuyNowDto } from "./order.dto";
 import { PaymentType, ProductEnum } from "../../common/enum/enums";
+import emailService from "../email/emai.service";
+import { EsewaInitSinglePayloadDto } from "../paymentGateway/payment.dto";
+import { CheckOutPaymentService, checkOutPaymentService } from "../paymentGateway/payment.service";
+import { CustomerService, customerService } from "../user/customer/customer.service";
+import { BuyNowDto, BuyNowEsewaDto } from "./order.dto";
+import { OrderService, orderService } from "./order.service";
 
 
 export class OrderController {
   private readonly service: OrderService;
-
-
+  private readonly paymentservice: CheckOutPaymentService;
+  private readonly userService: CustomerService;
   constructor() {
     this.service = orderService;
+    this.paymentservice = checkOutPaymentService;
+    this.userService = customerService;
   }
 
   private async buyNowAndCreateOrder(
@@ -24,9 +28,11 @@ export class OrderController {
     durationInHour: number,
     customerID: number,
     totalPriceInRs: number,
-
     issueId: number,
-    issuedFor: ProductEnum
+    issuedFor: ProductEnum,
+    isPaid: boolean,
+    paymentType: PaymentType,
+    transaction_uuid?: string
   ) {
 
     switch (issuedFor) {
@@ -39,8 +45,10 @@ export class OrderController {
             durationInHour,
             customer: { id: customerID },
             totalPriceInRs: totalPriceInRs,
-            boat: { id: issueId }
-
+            boat: { id: issueId },
+            isPaid,
+            paymentType,
+            transaction_uuid
           }
         );
 
@@ -54,7 +62,10 @@ export class OrderController {
             customer: { id: customerID },
             totalPriceInRs: totalPriceInRs,
 
-            cycle: { id: issueId }
+            cycle: { id: issueId },
+            isPaid,
+            paymentType,
+            transaction_uuid
           }
         );
     }
@@ -62,6 +73,18 @@ export class OrderController {
 
   }
 
+  async getOrders(req: Request,
+    res: Response,
+    next: NextFunction) {
+    try {
+      const userId = req.userId;
+      const orderList = await this.service.findByCustomerId(userId);
+      return ResponseHandler.success(res, "Orders", orderList);
+
+    } catch (error) {
+      next(error)
+    }
+  }
 
   async getEsewaConfiguration(
     req: Request,
@@ -69,9 +92,9 @@ export class OrderController {
     next: NextFunction
   ) {
     try {
-      const { transaction_uuid, product_code, issuedFor, productId, duration, quantity } =
+      const { transaction_uuid, product_code, bookingDate, issuedFor, productId, duration, quantity } =
         plainToInstance(EsewaInitSinglePayloadDto, req.body);
-
+      const userId = req.userId;
       const product = await this.service.getProduct(productId, issuedFor);
 
       if (!product) {
@@ -81,6 +104,12 @@ export class OrderController {
       const response = await checkOutPaymentService.getEsewaSignature(
         `total_amount=${totalPrice},transaction_uuid=${transaction_uuid},product_code=${product_code}`
       );
+      let newOrder: any;
+
+      newOrder = await this.buyNowAndCreateOrder(
+        quantity, product.priceInRs, bookingDate, duration, userId, totalPrice, productId, issuedFor, false, PaymentType.ESEWA, transaction_uuid
+      );
+
 
       return ResponseHandler.success(res, "Esewa Signature", { signature: response, totalPrice: totalPrice });
     } catch (error) {
@@ -94,16 +123,37 @@ export class OrderController {
   async esewaBuy(req: Request, res: Response, next: NextFunction) {
     try {
       const userId = req.userId;
-      
+      const { token } = plainToInstance(
+        BuyNowEsewaDto,
+        req.body
+      );
 
+      const check = await this.paymentservice.verifyEsewaPayment(token)
+      const product = await this.service.getOrder(check.Data?.transaction_uuid);
+      if (!product) {
+        throw new ExpressError(404, "Order not found!");
+      }
+      product.transaction_code = check?.Data?.transaction_code
+      product.isPaid = true;
+      product.save()
 
+      const user = await this.userService.findBYId(userId);
+      if (user) {
+        emailService.mailOrderComplete(user?.email, product)
+      }
       return ResponseHandler.success(res, "Successfully purchased", {
 
       });
+
+
+
     } catch (error) {
       next(error);
     }
   }
+
+
+
 
   async buy(req: Request, res: Response, next: NextFunction) {
     try {
@@ -126,30 +176,20 @@ export class OrderController {
       //verifying cash checkout
       if (paymentMethod === PaymentType.CASH) {
         newOrder = await this.buyNowAndCreateOrder(
-          quantity, priceOfSingleProduct, bookingDate, durationInHour, userId, totalAmount, issueId, issuedFor
+          quantity, priceOfSingleProduct, bookingDate, durationInHour, userId, totalAmount, issueId, issuedFor, true, PaymentType.CASH
         );
       }
-      //verifying Esewa checkout
-      if (paymentMethod === PaymentType.ESEWA) {
 
-        let response = await checkOutPaymentService.verifyEsewaPayment(
-          token
-        );
-        if (!response.success) {
-          throw new ExpressError(400, response?.Message);
-        }
-
-        console.log(response)
-        newOrder = await this.buyNowAndCreateOrder(
-          quantity, priceOfSingleProduct, bookingDate, durationInHour, userId, totalAmount, issueId, issuedFor
-        );
-
-        // create a new row in payment entity
+      const user = await this.userService.findBYId(userId);
+      if (user) {
+        emailService.mailOrderComplete(user?.email, newOrder)
       }
 
       return ResponseHandler.success(res, "Successfully purchased", {
         orderId: newOrder?.id,
       });
+
+
     } catch (error) {
       next(error);
     }

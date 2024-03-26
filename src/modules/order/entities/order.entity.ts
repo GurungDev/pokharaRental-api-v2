@@ -3,6 +3,7 @@ import CustomerEntity from "../../user/customer/entities/customer.entity";
 import { CustomBaseEntity } from "../../../common/baseEntity/custom-base-entity";
 import BoatEntity from "../../boat/entities/boat.entity";
 import CycleEntity from "../../cycle/entities/cycle.entity";
+import { PaymentType } from "../../../common/enum/enums";
 
 @Entity({ name: 'Order' })
 export default class OrderEntity extends CustomBaseEntity {
@@ -32,4 +33,17 @@ export default class OrderEntity extends CustomBaseEntity {
 
     @Column({ nullable: true })
     durationInHour: number
+
+    @Column({ default: false })
+    isPaid: boolean
+
+    @Column( )
+    paymentType: PaymentType
+
+
+    @Column({ nullable: true })
+    transaction_uuid: string
+
+    @Column({ nullable: true })
+    transaction_code: string
 }

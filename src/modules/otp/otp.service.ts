@@ -28,7 +28,7 @@ export class OTPService {
       otp: otp,
       validTill: getDateInInterval(
         duration || EnvConfig.otpExipryTime,
-        UNIT_FOR_DATE_INTERVAL.MINUTE
+        UNIT_FOR_DATE_INTERVAL.SECOND
       ),
     };
 

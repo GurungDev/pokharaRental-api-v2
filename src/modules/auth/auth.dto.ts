@@ -126,6 +126,7 @@ export class OtpDto {
   @Transform(({ value }) => {
     return value && value.trim();
   })
+  
   @IsString()
   @IsByteLength(10, 10)
   phoneNumber: string;

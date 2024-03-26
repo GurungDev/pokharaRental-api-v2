@@ -7,12 +7,12 @@ export class CheckOutPaymentService {
     try {
       //verifying esewa
       const data = Buffer.from(token, "base64").toString("utf-8")
-      // const jsonData = JSON.parse(data);
-      console.log(data);
-      // if (data.status != "COMPLETE") {
-      //   throw new ExpressError(400, data.status);
-      // }
-      return { success: true, Data: data };
+      const jsonData = JSON.parse(data);
+      console.log(jsonData);
+      if (jsonData.status != "COMPLETE") {
+        throw new ExpressError(400, jsonData.status);
+      }
+      return { success: true, Data: jsonData };
     } catch (error: any) {
       return { success: false, Message: error?.message };
     }

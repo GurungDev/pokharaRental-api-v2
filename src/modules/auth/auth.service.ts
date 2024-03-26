@@ -41,11 +41,12 @@ export class AuthService {
     };
   }
 
-  async send(email: string, purpose: OtpPurpose, phoneNumber: string) {
+  async send(email: string, purpose: OtpPurpose, phoneNumber?: string) {
     let otp;
     console.log(phoneNumber);
     switch (purpose) {
       case OtpPurpose.SIGNUP_CUSTOMER:
+
         const user = await this.customerService.findByEmail(email);
 
         if (user) {
@@ -55,6 +56,12 @@ export class AuthService {
           );
         }
 
+        if (!phoneNumber) {
+          throw new ExpressError(
+            400,
+            `Please provide phone Number!`
+          );
+        }
         if (await this.customerService.findByNumber(phoneNumber)) {
           throw new ExpressError(
             400,
@@ -88,6 +95,13 @@ export class AuthService {
           throw new ExpressError(
             400,
             `store with email ${email} already exists. Please login.`
+          );
+        }
+
+        if (!phoneNumber) {
+          throw new ExpressError(
+            400,
+            `Please provide phone Number!`
           );
         }
         if (await this.storeService.findByNumber(phoneNumber)) {

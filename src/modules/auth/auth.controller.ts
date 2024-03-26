@@ -29,7 +29,9 @@ export default class AuthController {
         password,
         validateFor
       );
+
       const token = await this.service.createToken(id, validateFor);
+      
       return ResponseHandler.success(res, "Login Success", {
         id,
         name,

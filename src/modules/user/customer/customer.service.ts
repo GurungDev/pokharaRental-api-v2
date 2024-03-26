@@ -3,7 +3,7 @@ import CustomerEntity from "./entities/customer.entity";
 import { CustomerRepository, customerRepository } from "./repository/customer.repository";
 import { plainToInstance } from "class-transformer";
 import { CustomerSerializer } from "./customer.serializer";
-  
+
 
 export class CustomerService {
   protected readonly repository: CustomerRepository;
@@ -12,15 +12,15 @@ export class CustomerService {
   }
 
   async findBYId(id: number) {
-    return await this.repository.findOne({ where: { id: id } });
+    return await this.repository.findOne({ where: { id: id }, relations: { subscribers: { store: true }, orders: true } });
   }
 
   async findByEmail(email: string) {
     return await this.repository.findOne({ where: { email: email } });
   }
 
- 
- 
+
+
   async findByNumber(number: string) {
     return await this.repository.findOne({ where: { phoneNumber: number } });
   }
@@ -38,11 +38,11 @@ export class CustomerService {
   }
 
   async changePassword(email: string, newPassword: string) {
-    const customer = await this.repository.findOne({where: {email} });
+    const customer = await this.repository.findOne({ where: { email } });
     if (!customer) {
       throw new Error('Customer not found');
     }
-    
+
     await customer.setPassword(newPassword);
     return await customer.save();
   }
