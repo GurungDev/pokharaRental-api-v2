@@ -1,7 +1,7 @@
 
 import { Transform } from 'class-transformer';
-import { IsEnum, IsISO8601, IsNotEmpty, IsNumber, IsString, Max, Min, ValidateIf } from 'class-validator';
-import { PaymentType, ProductEnum } from '../../common/enum/enums';
+import { IsEnum, IsISO8601, IsNotEmpty, IsNumber, IsOptional, IsString, Max, Min, ValidateIf } from 'class-validator';
+import { PaymentType, ProductEnum, SortEnum } from '../../common/enum/enums';
 
 export class BuyNowDto {
     @IsNotEmpty({ message: 'Quantity is required' })
@@ -10,6 +10,10 @@ export class BuyNowDto {
     @Max(5, { message: 'Quantity cannot be greater than 5' })
     quantity: number;
 
+ 
+    @IsNotEmpty()
+    @IsString()
+    transaction_uuid: string;
 
     @IsNotEmpty({ message: 'Booking date is required' })
     @IsISO8601({ strict: false })
@@ -48,4 +52,12 @@ export class BuyNowEsewaDto {
     @IsNotEmpty()
     @IsString()
     token: string;
+}
+
+export class OrderDto {
+
+    @IsOptional()
+    @IsNotEmpty()
+    @IsEnum(SortEnum)
+    orderBy: SortEnum;
 }

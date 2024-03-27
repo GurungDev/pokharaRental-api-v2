@@ -3,7 +3,7 @@ import { EsewaInitSinglePayloadDto } from "../paymentGateway/payment.dto";
 import { RequestDataPaths } from "../../common/enum/enums";
 import { Validator } from "../../common/class/validator";
 import { orderController } from "./order.controller";
-import { BuyNowDto, BuyNowEsewaDto } from "./order.dto";
+import { BuyNowDto, BuyNowEsewaDto, OrderDto } from "./order.dto";
 
 
 const OrderRoutes = Router({ mergeParams: true });
@@ -30,6 +30,9 @@ OrderRoutes.post(
 
 OrderRoutes.get(
   "/",
+
+  Validator.validate(OrderDto, RequestDataPaths.Params),
+
   orderController.getOrders.bind(orderController)
 );
 

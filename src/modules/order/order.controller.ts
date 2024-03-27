@@ -7,7 +7,7 @@ import emailService from "../email/emai.service";
 import { EsewaInitSinglePayloadDto } from "../paymentGateway/payment.dto";
 import { CheckOutPaymentService, checkOutPaymentService } from "../paymentGateway/payment.service";
 import { CustomerService, customerService } from "../user/customer/customer.service";
-import { BuyNowDto, BuyNowEsewaDto } from "./order.dto";
+import { BuyNowDto, BuyNowEsewaDto, OrderDto } from "./order.dto";
 import { OrderService, orderService } from "./order.service";
 
 
@@ -78,7 +78,9 @@ export class OrderController {
     next: NextFunction) {
     try {
       const userId = req.userId;
-      const orderList = await this.service.findByCustomerId(userId);
+      const { orderBy } = plainToInstance(OrderDto, req.query);
+      console.log(req.query)
+      const orderList = await this.service.findByCustomerId(userId, orderBy);
       return ResponseHandler.success(res, "Orders", orderList);
 
     } catch (error) {
@@ -139,7 +141,7 @@ export class OrderController {
 
       const user = await this.userService.findBYId(userId);
       if (user) {
-        emailService.mailOrderComplete(user?.email, product)
+        emailService.mailOrderComplete(user?.email, product.quantity, product.priceOfSingleProduct, product.bookingDate, product.durationInHour, product.totalPriceInRs, product.transaction_uuid )
       }
       return ResponseHandler.success(res, "Successfully purchased", {
 
@@ -158,7 +160,7 @@ export class OrderController {
   async buy(req: Request, res: Response, next: NextFunction) {
     try {
       const userId = req.userId;
-      const { paymentMethod, quantity, token, bookingDate, durationInHour, issueId, issuedFor } = plainToInstance(
+      const { paymentMethod,transaction_uuid, quantity, token, bookingDate, durationInHour, issueId, issuedFor } = plainToInstance(
         BuyNowDto,
         req.body
       );
@@ -175,14 +177,15 @@ export class OrderController {
 
       //verifying cash checkout
       if (paymentMethod === PaymentType.CASH) {
+        
         newOrder = await this.buyNowAndCreateOrder(
-          quantity, priceOfSingleProduct, bookingDate, durationInHour, userId, totalAmount, issueId, issuedFor, true, PaymentType.CASH
+          quantity, priceOfSingleProduct, bookingDate, durationInHour, userId, totalAmount, issueId, issuedFor, true, PaymentType.CASH, transaction_uuid
         );
       }
 
       const user = await this.userService.findBYId(userId);
       if (user) {
-        emailService.mailOrderComplete(user?.email, newOrder)
+        emailService.mailOrderComplete(user?.email, quantity, priceOfSingleProduct, bookingDate, durationInHour, totalAmount, transaction_uuid )
       }
 
       return ResponseHandler.success(res, "Successfully purchased", {

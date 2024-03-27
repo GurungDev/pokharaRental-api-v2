@@ -1,5 +1,5 @@
 import { DeepPartial } from "typeorm";
-import { ProductEnum } from "../../common/enum/enums";
+import { ProductEnum, SortEnum } from "../../common/enum/enums";
 import BoatService, { boatService } from "../boat/boat.service";
 import CycleService, { cycleService } from "../cycle/cycle.service";
 import { OrderRepository, orderRepository } from "./repository/order.repository";
@@ -45,7 +45,7 @@ export class OrderService {
         return await this.repository.findOneBy({ transaction_uuid: transaction_uuid })
     }
 
-    async findByCustomerId(id: number) {
+    async findByCustomerId(id: number, orderBy: SortEnum) {
         const query = await this.repository
             .createQueryBuilder('order')
             .withDeleted()
@@ -60,10 +60,12 @@ export class OrderService {
                 'boat.id',
                 'boat.title',
                 'boat.thumbnail',
+                'boat.description',
                 'cycle.id',
                 'cycle.title',
+                'cycle.description',
                 'cycle.thumbnail',
-                'order.paymentType' 
+                'order.paymentType'
             ])
 
             .leftJoin('order.boat', 'boat')
@@ -71,11 +73,20 @@ export class OrderService {
             .leftJoin('boat.store', 'bs')
             .leftJoin('order.customer', 'c')
             .leftJoin('cycle.store', 'cs')
-            .where('c.id = :id  ', { id })
+            .where('c.id = :id', { id })
             .andWhere('(order.paymentType <> :paymentType OR (order.paymentType = :paymentType AND order.transaction_code IS NOT NULL))', { paymentType: 'esewa' })
-            .getMany();
-        return query;
+
+
+        console.log(orderBy)
+        if (orderBy === SortEnum.DESC) {
+            return query.orderBy("order.createdAt", "DESC").getMany();
+        } else if (orderBy === SortEnum.ASC) {
+            return query.orderBy("order.createdAt", "ASC").getMany();
+        }
+
+        return query.getMany(); // Execute and return results for ASC sorting
     }
+
 }
 
 export const orderService = new OrderService();
