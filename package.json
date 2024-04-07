@@ -4,11 +4,17 @@
   "description": "",
   "main": "dist/index.js",
   "typings": "dist/index",
+  "engines": {
+    "node": "^20.10.0"
+  },
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "start": "ts-node-dev src/index --watch",
-    "mG": "typeorm -d ./src/data-source.ts migration:generate ./src/migration",
-    "mR": "typeorm-ts-node-commonjs -d ./src/data-source.ts migration:run"
+    "build": "tsc",
+    "typeorm:migration-generate": "typeorm-ts-node-commonjs migration:generate  ./src/migration/initialSchema --dataSource ./src/data-source.ts",
+    "typeorm:migration-up": "typeorm-ts-node-commonjs migration:run -d ./src/data-source.ts",
+    "typeorm:migration-down": "typeorm-ts-node-commonjs migration:revert -d ./src/data-source.ts",
+    "typeorm:migration-create": "npx typeorm migration:create ./src/migration/permissionSeeder"
   },
   "author": "",
   "license": "ISC",
@@ -44,6 +50,7 @@
     "@types/node": "^20.10.6",
     "@types/otp-generator": "^4.0.2",
     "ts-node": "^10.9.1",
-    "ts-node-dev": "^2.0.0"
+    "ts-node-dev": "^2.0.0",
+    "tsconfig-paths": "^4.2.0"
   }
 }

@@ -16,15 +16,16 @@ export class StoreCustomerService {
     return await this.repository.findOne({ where: { id: id } }); //return listings also 
   }
 
-  //get many stores according to location
-  async getAllStore() {
-    return await this.repository.find({ where: { is_approved: true } });
-  } 
+  async getAllStore(lat: number, long: number) {
+    return await this.repository
+      .createQueryBuilder("store")
+      .select(["store.id", "store.name","store.location", "store.phoneNumber", "store.ownerName", "store.email"])
+      .addSelect("ST_Distance(store.location, ST_SetSRID(ST_MakePoint(:long, :lat), 4326))", "distance")
+      .setParameters({ lat, long })
+      .where("store.is_approved = true")
+      .getRawMany();
 
-  //get subscribed store
-
-
-
+  }
 
   transformMany(store?: StoreEntity[]) {
     return store?.map((store) => plainToInstance(StoreSerializer, store, {}));
