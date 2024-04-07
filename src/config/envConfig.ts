@@ -13,7 +13,7 @@ export class EnvConfig {
 
   public static appConfig = {
     port: EnvConfig.parseInt(EnvConfig.getFromEnv("PORT")),
-    
+
   };
 
   public static dbConfig = {
@@ -22,15 +22,15 @@ export class EnvConfig {
     dbHost: this.parseString(this.getFromEnv("DB_HOST")),
     dbUsername: this.parseString(this.getFromEnv("DB_USERNAME")),
     dbPassword: this.parseString(this.getFromEnv("DB_PASSWORD")),
- 
+
   };
 
-   public static jwtSecret = this.parseString(this.getFromEnv("JWT_SECRET"));
+  public static jwtSecret = this.parseString(this.getFromEnv("JWT_SECRET"));
   public static jwtExpiresInSec = this.parseInt(
     this.getFromEnv("JWT_EXPIRY_SEC")
   );
 
- 
+
   public static adminConfig = {
     email: this.parseString(this.getFromEnv("ADMIN_EMAIL")),
     password: this.parseString(this.getFromEnv("ADMIN_PASSWORD")),
@@ -55,12 +55,19 @@ export class EnvConfig {
   };
 
 
-  
+
   public static EsewaConfig = {
     url: this.parseString(this.getFromEnv("ESEWA_URL")),
     secretKey: this.parseString(this.getFromEnv("ESEWA_SECRET_KEY"))
   };
- 
+
+  public static khaltiConfig = {
+    url: this.parseString(this.getFromEnv("KHALTI_URL")),
+    verifyUrl: this.parseString(this.getFromEnv("KHALTI_VERIFY_URL")),
+    secretKey: this.parseString(this.getFromEnv("KHALTI_SECRETKEY")),
+  };
+
+
   private static getFromEnv(key: string) {
     return process.env[key];
   }

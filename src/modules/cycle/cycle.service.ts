@@ -13,8 +13,6 @@ export default class CycleService {
         this.repository = cycleRepository;
     }
 
-
-
     async getAll(
         { limit = 20, page = 1 }: PaginationRequest,
         { storeId, search }: getProductType,
@@ -44,19 +42,23 @@ export default class CycleService {
             } else {
                 list.sort((a: any, b: any) => b.title.localeCompare(a.title));
             }
-           
+
         } else if (sortBy === SortByProductEnum.PRICE) {
             if (order === SortEnum.ASC) {
                 list.sort((a: any, b: any) => a.priceInRs - b.priceInRs);
             } else {
                 list.sort((a: any, b: any) => b.priceInRs - a.priceInRs);
             }
-         
+
         }
 
         // Filtering
         if (search !== undefined) {
-            list = list.filter((boat: any) => boat.title.toLowerCase().includes(search.toLowerCase()));
+            list = list.filter((cycle: any) => cycle.title.toLowerCase().includes(search.toLowerCase()));
+        }
+        // Filtering
+        if (storeId !== undefined) {
+            list = list.filter((cycle: any) => cycle.storeId == storeId);
         }
 
         // Pagination

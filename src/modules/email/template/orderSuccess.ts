@@ -1,11 +1,12 @@
 export function OrderSuccesMessage(quantity: number,
   priceOfSingleProduct: number,
-  bookingDate: Date,
+  bookingDate: any,
   durationInHour: number,
   totalPriceInRs: number,
   transaction_uuid: string) {
-  
-   const formattedBookingDate = bookingDate.toLocaleDateString('en-US', {
+  const date = new Date(bookingDate);
+
+  const formattedBookingDate = date.toLocaleDateString('en-US', {
     year: 'numeric',
     month: 'long',
     day: 'numeric'

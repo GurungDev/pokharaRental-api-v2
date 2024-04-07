@@ -1,15 +1,15 @@
 import { SubscriberRepository, subscriberRepository } from "./repository/subscriber.repository";
 
- 
- 
+
+
 
 export class SubscriberService {
   protected readonly repository: SubscriberRepository;
- 
+
   constructor() {
     this.repository = subscriberRepository;
   }
- 
+
 
   async create(userId: number, storeId: number) {
     return this.repository.create({ user: { id: userId }, store: { id: storeId } }).save();
@@ -19,12 +19,16 @@ export class SubscriberService {
     return this.repository.findOne({ where: { user: { id: userId }, store: { id: storeId } } });
   }
 
-  async getSubscriberAccordingToUserId(userId: number){
-    return this.repository.find({ where: { user: { id: userId } }, relations: {store: true} })
+  async getSubscriberAccordingToUserId(userId: number) {
+    return this.repository.find({ where: { user: { id: userId } }, relations: { store: true } })
   }
 
-  async deleteSubscriber(userId: number, storeId: number){
-    return this.repository.delete( { user: { id: userId }, store: { id: storeId } })
+  async getIsFollowed(userId: number, storeId: number) {
+    return this.repository.findOne({ where: { user: { id: userId }, store: { id: storeId } } })
+  }
+
+  async deleteSubscriber(userId: number, storeId: number) {
+    return this.repository.delete({ user: { id: userId }, store: { id: storeId } })
   }
 }
 

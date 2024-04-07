@@ -10,9 +10,9 @@ import OrderRoutes from "../../order/order.routes";
 import { ValidateId } from "../../../common/validation/id.validate";
 import { Validator } from "../../../common/class/validator";
 import { RequestDataPaths } from "../../../common/enum/enums";
+import { CustomerPatchDto } from "./customer.dto";
 
 const userRouter = Router({ mergeParams: true });
-
 
 
 userRouter.use("/boat", boatRouter)
@@ -28,6 +28,13 @@ userRouter.get(
     Validator.validate(ValidateId, RequestDataPaths.Params),
     customerController.getCustomerDetails.bind(customerController)
 );
+userRouter.patch(
+    "/",
+    authMiddleware, userChecker,
+    Validator.validate(CustomerPatchDto, RequestDataPaths.Body),
+    customerController.update.bind(customerController)
+);
+
 
 
 export default userRouter;

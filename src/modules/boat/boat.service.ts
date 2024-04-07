@@ -56,20 +56,26 @@ export default class BoatService {
             } else {
                 list.sort((a: any, b: any) => b.title.localeCompare(a.title));
             }
-           
+
         } else if (sortBy === SortByProductEnum.PRICE) {
             if (order === SortEnum.ASC) {
                 list.sort((a: any, b: any) => a.priceInRs - b.priceInRs);
             } else {
                 list.sort((a: any, b: any) => b.priceInRs - a.priceInRs);
             }
-         
+
         }
 
         // Filtering
         if (search !== undefined) {
             list = list.filter((boat: any) => boat.title.toLowerCase().includes(search.toLowerCase()));
         }
+
+        // Filtering
+        if (storeId !== undefined) {
+            list = list.filter((boat: any) => boat.storeId == storeId);
+        }
+
 
         // Pagination
         const paginationInfo = getPaginationResult(list.length, { limit, page });

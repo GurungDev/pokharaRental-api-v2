@@ -1,5 +1,5 @@
- import morgan from "morgan";
- import express from 'express';
+import morgan from "morgan";
+import express from 'express';
 import cors from "cors";
 import MainRouter from "./mainRouter";
 import { errorHandler } from "./common/middleware/error.middleware";

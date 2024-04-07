@@ -8,7 +8,6 @@ import { NotificationTypeEnum } from "../../common/enum/enums";
   @IsNotEmpty()
   @IsString()
   body: string;
-
 }
 
 

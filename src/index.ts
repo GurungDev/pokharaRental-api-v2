@@ -3,6 +3,7 @@ import pokharaRental from './app';
 import { EnvConfig } from './config/envConfig';
 import { AppDataSource } from './data-source';
 import { AdminSeeder } from './modules/admin/seeder/admin.seeder';
+import emailService from './modules/email/emai.service';
  
  
 const app = pokharaRental();
@@ -14,6 +15,6 @@ app.listen(PORT, async () => {
   );
   await AppDataSource.initialize();
   await AdminSeeder();
-  console.log(`DB is connected in port  ${EnvConfig.dbConfig.dbPort}` );
+   console.log(`DB is connected in port  ${EnvConfig.dbConfig.dbPort}` );
 });
  

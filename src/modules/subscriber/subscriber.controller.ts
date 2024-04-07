@@ -1,27 +1,27 @@
-import { NextFunction,Response, Request } from "express";
- 
- 
+import { NextFunction, Response, Request } from "express";
+
+
 import { plainToInstance } from "class-transformer";
- 
- 
+
+
 import { SubscriberDto } from "./subscriber.dto";
 import { ResponseHandler } from "../../common/class/success.response";
 import { ValidateId } from "../../common/validation/id.validate";
 import { SubscriberService, subscriberService } from "./subscriber.service";
 import { ExpressError } from "../../common/class/error";
 
-export class SubscriberController{
+export class SubscriberController {
     private readonly SubscriberService: SubscriberService
-    constructor(){
+    constructor() {
         this.SubscriberService = subscriberService
     }
 
-    async follow(req: Request, res: Response, next: NextFunction){
+    async follow(req: Request, res: Response, next: NextFunction) {
         try {
             const { storeId } = plainToInstance(SubscriberDto, req.params)
-            const userId = req.userId 
+            const userId = req.userId
             const check = await this.SubscriberService.getOne(userId, storeId)
-            if(!check){
+            if (!check) {
                 await this.SubscriberService.create(userId, storeId);
             }
             return ResponseHandler.success(res, "Following Store")
@@ -30,12 +30,12 @@ export class SubscriberController{
         }
     }
 
-    async unfollow(req: Request, res: Response, next: NextFunction){
+    async unfollow(req: Request, res: Response, next: NextFunction) {
         try {
             const { storeId } = plainToInstance(SubscriberDto, req.params)
-            const userId = req.userId 
+            const userId = req.userId
             const check = await this.SubscriberService.getOne(userId, storeId)
-            if(!check){
+            if (!check) {
                 throw new ExpressError(404, "Subscriber not found")
             }
             await this.SubscriberService.deleteSubscriber(userId, storeId);
@@ -44,17 +44,29 @@ export class SubscriberController{
             next(error)
         }
     }
- 
-    async getAllFollowedStore(req: Request, res: Response, next: NextFunction){
+
+    async getAllFollowedStore(req: Request, res: Response, next: NextFunction) {
         try {
-            const userId = req.userId 
+            const userId = req.userId
             const check = await this.SubscriberService.getSubscriberAccordingToUserId(userId)
             return ResponseHandler.success(res, "success", check)
         } catch (error) {
             next(error)
         }
     }
-    
+    async getIsFollowed(req: Request, res: Response, next: NextFunction) {
+        try {
+            const userId = req.userId
+            const { storeId } = plainToInstance(SubscriberDto, req.params)
+
+            const check = await this.SubscriberService.getIsFollowed(userId, storeId)
+
+            return ResponseHandler.success(res, "success", check ? true : false)
+        } catch (error) {
+            next(error)
+        }
+    }
+
 }
 
 export const subscriberController = new SubscriberController();

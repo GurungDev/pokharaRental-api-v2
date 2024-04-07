@@ -21,7 +21,7 @@ export default class CustomerEntity extends CustomBaseEntity {
     email: string;
 
 
-    @Column({ unique: true })
+    @Column()
     phoneNumber: string;
 
     @OneToMany(() => SubscriberEntity, (subscriber) => subscriber.user)

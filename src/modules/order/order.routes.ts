@@ -1,5 +1,5 @@
 import { Router } from "express";
-import { EsewaInitSinglePayloadDto } from "../paymentGateway/payment.dto";
+import { EsewaInitSinglePayloadDto, KhaltiInitPayloadDto, KhaltiPayloadDto } from "../paymentGateway/payment.dto";
 import { RequestDataPaths } from "../../common/enum/enums";
 import { Validator } from "../../common/class/validator";
 import { orderController } from "./order.controller";
@@ -15,6 +15,12 @@ OrderRoutes.post(
 );
 
 OrderRoutes.post(
+  "/khalti/init",
+  Validator.validate(KhaltiInitPayloadDto, RequestDataPaths.Body),
+  orderController.khaltiInit.bind(orderController)
+);
+
+OrderRoutes.post(
   "/",
   Validator.validate(BuyNowDto, RequestDataPaths.Body),
   orderController.buy.bind(orderController)
@@ -27,12 +33,15 @@ OrderRoutes.post(
   orderController.esewaBuy.bind(orderController)
 );
 
+OrderRoutes.post(
+  "/khalti",
+  Validator.validate(KhaltiPayloadDto, RequestDataPaths.Body),
+  orderController.khaltiBuy.bind(orderController)
+);
 
 OrderRoutes.get(
   "/",
-
   Validator.validate(OrderDto, RequestDataPaths.Params),
-
   orderController.getOrders.bind(orderController)
 );
 

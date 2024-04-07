@@ -18,16 +18,18 @@ export class StoreRegisterDto {
   @IsString()
   password: string;
 
-  @IsNotEmpty()
-  @IsString()
-  long: string;
+ 
 
   @IsNotEmpty()
   @IsString()
   otp: string;
 
   @IsNotEmpty()
-  @IsString()
+  @IsNumber()
+  long: string;
+
+  @IsNotEmpty()
+  @IsNumber()
   lat: string;
 
   @IsNotEmpty()
@@ -56,11 +58,11 @@ export class StoreDto {
   password: string;
 
   @IsNotEmpty()
-  @IsString()
+  @IsNumber()
   long: string;
 
   @IsNotEmpty()
-  @IsString()
+  @IsNumber()
   lat: string;
 
   @IsNotEmpty()

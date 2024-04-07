@@ -44,6 +44,7 @@ export enum RatingForEnum{
 
 export enum NotificationTypeEnum {
   NEW_BOAT = "new_boat",
+  PUSH_NOTIFICATION = "push_notification",
   NEW_CYCLE = "new_cycle",
   UPDATE_BOAT = "update_boat",
   UPDATE_CYCLE = "update_cycle"
@@ -58,5 +59,6 @@ export enum ProductEnum{
 
 export enum PaymentType{
   CASH = "cash",
-  ESEWA = "esewa"
+  ESEWA = "esewa",
+  KHALTI = "khalti"
 }

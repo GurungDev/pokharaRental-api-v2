@@ -32,7 +32,7 @@ export class StoreOrderService extends OrderService {
             .leftJoin('boat.store', 'bs')
             .leftJoin('cycle.store', 'cs')
             .where('bs.id = :storeId OR cs.id = :storeId', { storeId })
-
+            .orderBy("order.createdAt", "DESC")
             .getMany();
         return query;
 

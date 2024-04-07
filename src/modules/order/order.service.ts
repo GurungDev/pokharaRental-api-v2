@@ -74,7 +74,9 @@ export class OrderService {
             .leftJoin('order.customer', 'c')
             .leftJoin('cycle.store', 'cs')
             .where('c.id = :id', { id })
-            .andWhere('(order.paymentType <> :paymentType OR (order.paymentType = :paymentType AND order.transaction_code IS NOT NULL))', { paymentType: 'esewa' })
+            .andWhere('(order.paymentType = :paymentType1 AND order.transaction_code IS NOT NULL)', { paymentType1: 'esewa' })
+            .orWhere('(order.paymentType = :paymentType2 AND order.transaction_code IS NOT NULL)', { paymentType2: 'khalti' })
+            .orWhere('(order.paymentType = :paymentType3 )', { paymentType3: 'cash' })
 
 
         console.log(orderBy)
