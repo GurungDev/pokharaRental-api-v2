@@ -17,6 +17,16 @@ export class StoreSubscriberController{
             next(error)
         }
     }
+
+    async getCount(req: Request, res: Response, next: NextFunction){
+        try {
+            const userId = req.userId 
+            const subscriberList = await this.SubscriberService.getSubscriberCount(userId)
+            return ResponseHandler.success(res, "success", subscriberList)
+        } catch (error) {
+            next(error)
+        }
+    }
 }
 
 export const storeSubscriberController  = new StoreSubscriberController();

@@ -1,4 +1,4 @@
-import { DeepPartial } from "typeorm";
+import { Brackets, DeepPartial } from "typeorm";
 import { ProductEnum, SortEnum } from "../../common/enum/enums";
 import BoatService, { boatService } from "../boat/boat.service";
 import CycleService, { cycleService } from "../cycle/cycle.service";
@@ -45,7 +45,9 @@ export class OrderService {
         return await this.repository.findOneBy({ transaction_uuid: transaction_uuid })
     }
 
+
     async findByCustomerId(id: number, orderBy: SortEnum) {
+        console.log(id)
         const query = await this.repository
             .createQueryBuilder('order')
             .withDeleted()
@@ -65,21 +67,25 @@ export class OrderService {
                 'cycle.title',
                 'cycle.description',
                 'cycle.thumbnail',
-                'order.paymentType'
+                'order.paymentType',
+                'c.id'
             ])
 
             .leftJoin('order.boat', 'boat')
             .leftJoin('order.cycle', 'cycle')
             .leftJoin('boat.store', 'bs')
             .leftJoin('order.customer', 'c')
+      
             .leftJoin('cycle.store', 'cs')
             .where('c.id = :id', { id })
-            .andWhere('(order.paymentType = :paymentType1 AND order.transaction_code IS NOT NULL)', { paymentType1: 'esewa' })
-            .orWhere('(order.paymentType = :paymentType2 AND order.transaction_code IS NOT NULL)', { paymentType2: 'khalti' })
-            .orWhere('(order.paymentType = :paymentType3 )', { paymentType3: 'cash' })
+            .andWhere(new Brackets(qb => {
+              qb.where('(order.paymentType = :paymentType1 AND order.transaction_code IS NOT NULL)', { paymentType1: 'esewa' })
+                .orWhere('(order.paymentType = :paymentType2 AND order.transaction_code IS NOT NULL)', { paymentType2: 'khalti' })
+                .orWhere('order.paymentType = :paymentType3', { paymentType3: 'cash' })
+            }));
 
 
-        console.log(orderBy)
+
         if (orderBy === SortEnum.DESC) {
             return query.orderBy("order.createdAt", "DESC").getMany();
         } else if (orderBy === SortEnum.ASC) {

@@ -10,6 +10,11 @@ storeSubscriberRoutes.get(
   storeChecker,
   storeSubscriberController.getAllSubscriber.bind(storeSubscriberController)
 );
- 
+storeSubscriberRoutes.get(
+  "/count",  
+  authMiddleware,
+  storeChecker,
+  storeSubscriberController.getCount.bind(storeSubscriberController)
+);
 
 export default storeSubscriberRoutes;
