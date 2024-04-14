@@ -6,7 +6,7 @@ import { Validator } from "../../../common/class/validator";
 
 const StoreOrderRoutes = Router({ mergeParams: true });
 StoreOrderRoutes.get("/", orderStoreController.getOrders.bind(orderStoreController))
-StoreOrderRoutes.get("/analysis", Validator.validate(SalesAnalysisDTO, RequestDataPaths.Query), orderStoreController.getOrderPerDay.bind(orderStoreController))
+StoreOrderRoutes.get("/analysis", orderStoreController.getOrderPerDay.bind(orderStoreController))
 StoreOrderRoutes.get("/analysis/sales", Validator.validate(SalesAnalysisDTO, RequestDataPaths.Query), orderStoreController.findSalesPerDay.bind(orderStoreController))
 
 export default StoreOrderRoutes;

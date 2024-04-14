@@ -42,11 +42,13 @@ export class RatingService {
             case RatingForEnum.BOAT:
                 queryBuilder = queryBuilder.addSelect('boat')
                     .innerJoin('BoatEntity', 'boat', 'rating.issueId = boat.id  AND boat.deletedAt IS NULL')
+                    .innerJoin('boat.store', 'store', 'store.is_approved = true') // Check if the associated store is approved
+
                     .addGroupBy('boat.id')
                 break;
             case RatingForEnum.CYCLE:
                 queryBuilder = queryBuilder.addSelect('cycle')
-                    .innerJoin('CycleEntity', 'cycle', 'rating.issueId = cycle.id AND cycle.deletedAt IS NULL')
+                    .innerJoin('CycleEntity', 'cycle', 'rating.issueId = cycle.id AND cycle.deletedAt IS NULL').innerJoin('cycle.store', 'store', 'store.is_approved = true')
                     .addGroupBy('cycle.id')
                 break;
             case RatingForEnum.STORE:

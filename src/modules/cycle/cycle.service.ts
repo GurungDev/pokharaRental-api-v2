@@ -19,13 +19,17 @@ export default class CycleService {
         { sortBy, order }: productSortType
     ) {
         let list = await this.repository.query(`
-        SELECT * FROM "Cycles"
+        SELECT "Cycles".*,
+        "rt".* ,"store"."is_approved" AS "is_approved",
+        "store"."id" AS "storeId",
+        "store"."name" AS "storeName" FROM  "Cycles"
         LEFT JOIN (
             SELECT "ratings"."issueId", COUNT(*) AS ratingCount, SUM(star)/COUNT(*) AS TotalStar
             FROM ratings
             WHERE "ratings"."ratingFor" = 'cycle'
             GROUP BY "ratings"."issueId"
-        ) "rt" ON "rt"."issueId" = "Cycles"."id"
+        ) "rt" ON "rt"."issueId" = "Cycles"."id"  
+        LEFT JOIN "Stores" "store" ON "store"."id" = "Cycles"."storeId"
         WHERE "Cycles"."deletedAt" IS NULL
     `);
 
@@ -60,7 +64,7 @@ export default class CycleService {
         if (storeId !== undefined) {
             list = list.filter((cycle: any) => cycle.storeId == storeId);
         }
-
+        list = list.filter((cycle: any) => cycle.is_approved == true);
         // Pagination
         const paginationInfo = getPaginationResult(list.length, { limit, page });
         const paginatedList = list.slice((page - 1) * limit, page * limit);

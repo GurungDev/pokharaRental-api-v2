@@ -11,8 +11,15 @@ export class StoreSubsriberService extends SubscriberService {
     }
 
     async getSubscriberCount(storeId: number) {
-        return this.repository.count({ where: { store: { id: storeId } } })
+        const today = new Date();
+        today.setUTCHours(0, 0, 0, 0);
+        const tomorrow = new Date(today);
+        tomorrow.setUTCDate(today.getUTCDate() + 1);
+        const updateToday = await this.repository.createQueryBuilder("store").where("store.createdAt > :date", { date: today }).andWhere({ id: storeId }).getCount();
+        return {count: await this.repository.count({ where: { store: { id: storeId } } }), today: updateToday}
     }
+
+
 }
 
 export const storeSubsriberService = new StoreSubsriberService();

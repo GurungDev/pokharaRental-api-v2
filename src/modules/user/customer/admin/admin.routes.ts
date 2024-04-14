@@ -7,29 +7,28 @@ import { RequestDataPaths } from "../../../../common/enum/enums";
 
 const adminCustomerRouter = Router({ mergeParams: true });
 
+
+
+adminCustomerRouter.get(
+  "/",
+  authMiddleware,
+  adminChecker,
+  adminStoreController.get.bind(adminStoreController)
+);
+adminCustomerRouter.get(
+  "/number",
+  authMiddleware,
+  adminChecker,
+  adminStoreController.getCount.bind(adminStoreController)
+);
  
-
 adminCustomerRouter.get(
-    "/",
-    authMiddleware,
-    adminChecker,
-    adminStoreController.get.bind(adminStoreController)
-  );   
-  adminCustomerRouter.get(
-    "/number",
-    authMiddleware,
-    adminChecker,
-    adminStoreController.getCount.bind(adminStoreController)
-  );  
-
-adminCustomerRouter.get(
-    "/:id",
-    authMiddleware,
-    adminChecker,
-    Validator.validate(ValidateId, RequestDataPaths.Params),
-
-    adminStoreController.retrieve.bind(adminStoreController)
-); 
+  "/:id",
+  authMiddleware,
+  adminChecker,
+  Validator.validate(ValidateId, RequestDataPaths.Params),
+  adminStoreController.retrieve.bind(adminStoreController)
+);
 
 
 export default adminCustomerRouter;

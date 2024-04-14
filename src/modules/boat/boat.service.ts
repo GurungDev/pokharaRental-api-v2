@@ -33,13 +33,17 @@ export default class BoatService {
     ) {
 
         let list = await this.repository.query(`
-        SELECT * FROM "Boats"
+        SELECT  "Boats".*,
+        "rt".* ,"store"."is_approved" AS "is_approved",
+        "store"."id" AS "storeId",
+        "store"."name" AS "storeName" FROM "Boats"
         LEFT JOIN (
             SELECT "ratings"."issueId", COUNT(*) AS ratingCount, SUM(star)/COUNT(*) AS TotalStar
             FROM ratings
             WHERE "ratings"."ratingFor" = 'boat'
             GROUP BY "ratings"."issueId"
         ) "rt" ON "rt"."issueId" = "Boats"."id"
+        LEFT JOIN "Stores" "store" ON "store"."id" = "Boats"."storeId"
         WHERE "Boats"."deletedAt" IS NULL
     `);
 
@@ -76,7 +80,9 @@ export default class BoatService {
             list = list.filter((boat: any) => boat.storeId == storeId);
         }
 
+        list = list.filter((boat: any) => boat.is_approved == true);
 
+        console.log(list)
         // Pagination
         const paginationInfo = getPaginationResult(list.length, { limit, page });
         const paginatedList = list.slice((page - 1) * limit, page * limit);
