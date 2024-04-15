@@ -7,10 +7,15 @@ import StoreOrderRoutes from "../../order/store/store.route";
 import authMiddleware, { storeChecker } from "../../auth/middleware/auth.middleware";
 import storeNotificationRoutes from "../../notification/store/store.routes";
 import { storeController } from "./store.controller";
+import { RequestDataPaths } from "../../../common/enum/enums";
+import { SalesAnalysisDTO } from "../../order/store/store.dto";
+import { Validator } from "../../../common/class/validator";
 
 const storeRouter = Router({ mergeParams: true });
 
 storeRouter.get("/getInfo", authMiddleware, storeChecker, storeController.getInfo.bind(storeController))
+storeRouter.get("/revenue", authMiddleware, storeChecker, Validator.validate(SalesAnalysisDTO, RequestDataPaths.Query),storeController.getRevenue.bind(storeController))
+
 storeRouter.patch("/", authMiddleware, storeChecker, storeController.update.bind(storeController))
 storeRouter.use("/boat", adminBoatRouter)
 storeRouter.use("/cycle", adminCycleRouter)

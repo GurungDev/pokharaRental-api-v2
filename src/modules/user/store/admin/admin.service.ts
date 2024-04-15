@@ -5,10 +5,10 @@ import { StoreService } from "../store.service";
 import { OrderRepository, orderRepository } from "../../../order/repository/order.repository";
 
 export class AdminStoreService extends StoreService {
-    private readonly orderRepo: OrderRepository;
+    
     constructor() {
         super()
-        this.orderRepo = orderRepository
+        
     }
 
     async approveStore(storeId: number): Promise<StoreEntity> {
@@ -67,6 +67,9 @@ export class AdminStoreService extends StoreService {
 
 
     }
+
+   
+ 
 
 
 }

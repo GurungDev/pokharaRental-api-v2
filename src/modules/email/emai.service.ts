@@ -1,11 +1,9 @@
 import { SendGridEmailServiceService } from "./sendgrid.service";
-import { storeRegister } from "./template/storeRegister";
 import { baseTemplate } from "./template/base-template";
 import { customerRegister } from "./template/customerRegister";
 import { passwordChange } from "./template/forgotPassword";
-import OrderEntity from "../order/entities/order.entity";
 import { OrderSuccesMessage } from "./template/orderSuccess";
-import { ProductEnum } from "../../common/enum/enums";
+import { storeRegister } from "./template/storeRegister";
 
 export class EmailService extends SendGridEmailServiceService {
   constructor() {

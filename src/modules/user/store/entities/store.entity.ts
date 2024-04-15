@@ -4,6 +4,7 @@ import BoatEntity from "../../../boat/entities/boat.entity";
 import { generateHash } from "../../../../common/function/hashing";
 import CycleEntity from "../../../cycle/entities/cycle.entity";
 import { SubscriberEntity } from "../../../subscriber/entities/subscriber.entity";
+import { RevenueEntity } from "../../../revenue/entities/revenue.entity";
  
 @Entity({name: 'Stores'})
 export default class StoreEntity extends CustomBaseEntity {
@@ -13,9 +14,11 @@ export default class StoreEntity extends CustomBaseEntity {
     @Column()
     password: string;
 
+    @Column({default: 200})
+    revenue: string;
+
     @Column( )
     salt: string;
-
 
     @Column({ unique: true })
     email: string;
@@ -43,6 +46,9 @@ export default class StoreEntity extends CustomBaseEntity {
 
     @OneToMany(() => CycleEntity, (boat) => boat.store)
     cycles: CycleEntity[]
+
+    @OneToMany(() => RevenueEntity, revenue => revenue.store)
+    revenueHistory: RevenueEntity[];
 
     @OneToMany(() => SubscriberEntity, (subscriber) => subscriber.store)
     subscribers: SubscriberEntity[]

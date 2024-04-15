@@ -1,4 +1,4 @@
-import { DeepPartial } from "typeorm";
+import { Brackets, DeepPartial } from "typeorm";
 import {
   StoreRepository,
   storeRepository,
@@ -6,11 +6,14 @@ import {
 import StoreEntity from "./entities/store.entity";
 import { plainToInstance } from "class-transformer";
 import { StoreSerializer } from "./store.serializer";
+import { OrderRepository, orderRepository } from "../../order/repository/order.repository";
 
 export class StoreService {
   protected readonly repository: StoreRepository;
+   protected readonly orderRepo: OrderRepository;
   constructor() {
-    this.repository = storeRepository;
+    this.repository = storeRepository; 
+    this.orderRepo = orderRepository
   }
 
   async findBYId(id: number) {
@@ -18,7 +21,7 @@ export class StoreService {
   }
 
   async findByEmail(email: string) {
-    return await this.repository.findOne({ where: { email: email }});
+    return await this.repository.findOne({ where: { email: email } });
   }
 
   async changePassword(email: string, newPassword: string) {
@@ -48,7 +51,34 @@ export class StoreService {
     return await store.save();
   }
 
-
+  async findSalesPerStore(month: number, year: number, storeId: number) {
+    const query = await this.orderRepo
+      .createQueryBuilder('order')
+      .withDeleted()
+      .select('SUM(order.totalPriceInRs)', 'sales')
+      .addSelect('bs.name', 'store_name_b')
+      .addSelect('cs.name', 'store_name_c')
+      .addSelect('bs.id', 'store_id_b')
+      .addSelect('cs.id', 'store_id_c')
+      .leftJoin('order.boat', 'boat')
+      .leftJoin('order.cycle', 'cycle')
+      .leftJoin('boat.store', 'bs')
+      .leftJoin('cycle.store', 'cs')
+      .where(new Brackets(qb => {
+        qb.where('(order.paymentType = :paymentType1 AND order.transaction_code IS NOT NULL)', { paymentType1: 'esewa' })
+          .orWhere('(order.paymentType = :paymentType2 AND order.transaction_code IS NOT NULL)', { paymentType2: 'khalti' })
+      }))
+      .andWhere('EXTRACT(MONTH FROM order.createdAt) = :month AND EXTRACT(YEAR FROM order.createdAt) = :year', { month, year })
+      .andWhere(new Brackets(qb => {
+        qb.where('bs.id = :storeId')
+          .orWhere('cs.id = :storeId')
+      }))
+      .groupBy('bs.id')
+      .addGroupBy('cs.id')
+      .setParameters({ storeId })
+      .getRawMany();
+    return query;
+  }
 
   transformMany(store?: StoreEntity[]) {
     return store?.map((store) => plainToInstance(StoreSerializer, store, {}));
