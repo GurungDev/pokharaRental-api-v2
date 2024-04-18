@@ -10,7 +10,7 @@ import OrderRoutes from "../../order/order.routes";
 import { ValidateId } from "../../../common/validation/id.validate";
 import { Validator } from "../../../common/class/validator";
 import { RequestDataPaths } from "../../../common/enum/enums";
-import { CustomerPatchDto } from "./customer.dto";
+import { CustomerContactDto, CustomerPatchDto } from "./customer.dto";
 
 const userRouter = Router({ mergeParams: true });
 
@@ -27,6 +27,11 @@ userRouter.get(
     "/:id",
     Validator.validate(ValidateId, RequestDataPaths.Params),
     customerController.getCustomerDetails.bind(customerController)
+);
+userRouter.post(
+    "/contact",
+    Validator.validate(CustomerContactDto, RequestDataPaths.Body),
+    customerController.contactAdmin.bind(customerController)
 );
 userRouter.patch(
     "/",

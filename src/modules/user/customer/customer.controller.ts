@@ -4,7 +4,8 @@ import { ResponseHandler } from "../../../common/class/success.response";
 import { ExpressError } from "../../../common/class/error";
 import { plainToInstance } from "class-transformer";
 import { ValidateId } from "../../../common/validation/id.validate";
-import { CustomerPatchDto } from "./customer.dto";
+import { CustomerContactDto, CustomerPatchDto } from "./customer.dto";
+import emailService from "../../email/emai.service";
 
 export class CustomerController {
   protected service: CustomerService;
@@ -26,10 +27,21 @@ export class CustomerController {
     }
   }
 
+  async contactAdmin(req: Request, res: Response, next: NextFunction) {
+    try {
+      const { name, email, phone, description } = plainToInstance(CustomerContactDto, req.body)
+      await emailService.sendContactEmail(email, phone, name, description)
+
+      return ResponseHandler.success(res, "Contacted successfully.");
+    } catch (error) {
+      next(error);
+    }
+  }
+
 
   async update(req: Request, res: Response, next: NextFunction) {
     try {
-       
+
       const userID = req.userId;
       const { name, phoneNumber } = plainToInstance(CustomerPatchDto, req.body)
       const response = await this.service.findBYId(userID);
@@ -38,7 +50,7 @@ export class CustomerController {
         throw new ExpressError(404, "User not found")
       }
       if (name) { response.name = name }
-     
+
       if (phoneNumber) { response.phoneNumber = phoneNumber }
       await response.save()
       return ResponseHandler.success(res, "User details",
