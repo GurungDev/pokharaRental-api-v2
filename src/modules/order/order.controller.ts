@@ -9,19 +9,18 @@ import { CheckOutPaymentService, checkOutPaymentService } from "../paymentGatewa
 import { CustomerService, customerService } from "../user/customer/customer.service";
 import { BuyNowDto, BuyNowEsewaDto, OrderDto } from "./order.dto";
 import { OrderService, orderService } from "./order.service";
-import { RevenueService, revenueService } from "../revenue/revenue.service";
 
 
 export class OrderController {
   private readonly service: OrderService;
   private readonly paymentservice: CheckOutPaymentService;
   private readonly userService: CustomerService;
- 
+
   constructor() {
     this.service = orderService;
     this.paymentservice = checkOutPaymentService;
     this.userService = customerService;
-   }
+  }
 
   private async buyNowAndCreateOrder(
     quantity: number,
@@ -124,11 +123,11 @@ export class OrderController {
 
       const check = await this.paymentservice.verifyKhaltiPayment({ pidx })
       const product = await this.service.getOrder(check.Data?.pidx);
-      
+
       if (!product) {
         throw new ExpressError(404, "Order not found!");
       }
-       
+
       product.transaction_code = check?.Data?.transaction_id
       product.isPaid = true;
       product.save()
@@ -168,11 +167,11 @@ export class OrderController {
         `total_amount=${totalPrice},transaction_uuid=${transaction_uuid},product_code=${product_code}`
       );
       let newOrder: any;
-        
+
       newOrder = await this.buyNowAndCreateOrder(
         quantity, product.priceInRs, bookingDate, duration, userId, totalPrice, productId, issuedFor, false, PaymentType.ESEWA, transaction_uuid
       );
- 
+
       return ResponseHandler.success(res, "Esewa Signature", { signature: response, totalPrice: totalPrice });
     } catch (error) {
       next(error);
